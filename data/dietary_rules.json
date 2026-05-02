@@ -1,0 +1,79 @@
+[
+  {
+    "id": "diet_001",
+    "name": "Halal",
+    "description": "Permissible under Islamic law. Excludes pork and pork derivatives, alcohol, non-halal slaughtered meat.",
+    "forbidden_ingredients": ["pork", "bacon", "lard", "alcohol", "gelatin_non_halal", "non_halal_meat"],
+    "required_certifications": ["halal_certified_meat"],
+    "cross_contamination_rules": "Separate utensils and cooking surfaces required",
+    "safe_proteins": ["chicken", "beef", "lamb", "mutton", "fish", "prawns"],
+    "safe_dairy": ["milk", "butter", "cream", "coconut_milk", "eggs"],
+    "notes": "Halal certification from MUIS (Islamic Religious Council of Singapore). Approximately 15% of Singapore's population is Muslim — halal catering is very common. Continental Pantry supplier is NOT MUIS certified — avoid for halal events."
+  },
+  {
+    "id": "diet_002",
+    "name": "Vegan",
+    "description": "No animal products of any kind — no meat, dairy, eggs, or honey.",
+    "forbidden_ingredients": ["meat", "chicken", "beef", "lamb", "fish", "prawns", "crab_meat", "milk", "cream", "butter", "condensed_milk", "evaporated_milk", "eggs", "honey", "ghee", "ikan_bilis", "fish_cake"],
+    "required_certifications": [],
+    "cross_contamination_rules": "Ideally separate cooking station for strict vegans",
+    "safe_proteins": ["chickpeas", "tofu", "tofu_puff", "peanuts"],
+    "notes": "Singapore has a growing vegan scene. Sayur Lodeh, Aglio Olio, Hummus, Popiah, and Mee Goreng (without egg) are vegan-friendly options."
+  },
+  {
+    "id": "diet_003",
+    "name": "Vegetarian",
+    "description": "No meat, poultry, or seafood. Dairy and eggs permitted.",
+    "forbidden_ingredients": ["chicken", "beef", "lamb", "mutton", "pork", "fish", "prawns", "crab_meat", "ikan_bilis", "fish_cake", "chinese_sausage"],
+    "required_certifications": [],
+    "cross_contamination_rules": "Separate serving utensils for veg and non-veg dishes",
+    "safe_proteins": ["tofu", "tofu_puff", "chickpeas", "eggs", "peanuts"],
+    "notes": "Common request in Singapore due to Buddhist and Hindu communities. Always offer at least 2 vegetarian mains."
+  },
+  {
+    "id": "diet_004",
+    "name": "Gluten-Free",
+    "description": "No wheat, barley, rye, or any gluten-containing grains.",
+    "forbidden_ingredients": ["flour", "wheat", "barley", "rye", "spaghetti", "pita_bread", "croutons", "yellow_noodles", "popiah_skin", "soy_sauce"],
+    "required_certifications": [],
+    "cross_contamination_rules": "Dedicated cooking surfaces and utensils. Cross-contamination risk is high.",
+    "safe_starches": ["jasmine_rice", "flat_rice_noodles", "rice_noodles", "potato"],
+    "notes": "Chicken Rice, Satay, Rendang, Laksa (with rice noodles), and most Malay curries are naturally gluten-free."
+  },
+  {
+    "id": "diet_005",
+    "name": "Jain",
+    "description": "Vegetarian + no root vegetables (onion, garlic, potato, carrot). No eating after sunset traditionally.",
+    "forbidden_ingredients": ["onion", "garlic", "potato", "carrot", "ginger", "all_meat", "eggs"],
+    "required_certifications": [],
+    "cross_contamination_rules": "Complete separation from non-Jain cooking",
+    "safe_dishes": ["rice", "tofu_dishes_without_onion_garlic", "most_desserts"],
+    "notes": "Rare in Singapore but occasionally requested by Indian expatriate community. Significant constraint — limited menu options."
+  },
+  {
+    "id": "diet_006",
+    "name": "Nut-Free",
+    "description": "No tree nuts or peanuts due to allergy risk. Critical safety requirement.",
+    "forbidden_ingredients": ["peanuts", "peanut_sauce", "almonds", "cashews", "pistachios", "walnuts", "mixed_nuts"],
+    "required_certifications": [],
+    "cross_contamination_rules": "CRITICAL — complete separation. Label all dishes clearly.",
+    "severity": "ALLERGY — potentially life-threatening",
+    "notes": "Singapore schools and many corporate offices have strict nut-free policies. Satay and Nasi Lemak contain peanuts — flag as HIGH RISK for nut-free events."
+  },
+  {
+    "id": "diet_007",
+    "name": "Diabetic-Friendly",
+    "description": "Low glycemic index foods. Avoid high sugar, refined carbs, fried foods.",
+    "forbidden_ingredients": ["sugar_syrup", "condensed_milk", "deep_fried_items", "sugary_desserts"],
+    "recommended": ["whole_grains", "salads", "grilled_proteins", "fresh_fruit", "tofu"],
+    "notes": "Singapore has one of the highest diabetes rates in Asia. Fresh Tropical Fruit Platter is the go-to dessert for diabetic-friendly events."
+  },
+  {
+    "id": "diet_008",
+    "name": "Keto",
+    "description": "High fat, moderate protein, very low carbohydrate. No grains, starchy vegetables, or sugar.",
+    "forbidden_ingredients": ["rice", "noodles", "bread", "pasta", "potato", "sugar", "flour"],
+    "recommended": ["grilled_meats", "satay", "salads", "tofu", "eggs", "olive_oil"],
+    "notes": "Chicken Satay, Chili Crab Bites, Caesar Salad, and Mixed Green Salad are keto-compatible."
+  }
+]

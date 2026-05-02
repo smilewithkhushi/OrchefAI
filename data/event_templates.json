@@ -1,0 +1,136 @@
+[
+  {
+    "id": "tmpl_001",
+    "event_type": "corporate_lunch",
+    "description": "Weekday office lunch or team event. Focus on speed, dietary diversity, and value.",
+    "typical_guest_range": [20, 300],
+    "typical_budget_per_head_usd": [15, 35],
+    "typical_duration_hours": 2,
+    "recommended_menu_structure": {
+      "starters": 1,
+      "mains": 2,
+      "accompaniments": 2,
+      "dessert": 1,
+      "beverages": 2
+    },
+    "must_have_options": ["vegetarian_main", "halal_option"],
+    "avoid": ["alcohol", "very_spicy_food"],
+    "serving_style": "buffet",
+    "setup_time_hours": 1.5,
+    "cleanup_time_hours": 1,
+    "typical_staff_per_100_guests": 3,
+    "notes": "Singapore offices typically require halal and vegetarian options. Keep it simple and quick."
+  },
+  {
+    "id": "tmpl_002",
+    "event_type": "wedding",
+    "description": "Grand celebration requiring elaborate menus, multiple courses, and high presentation standards.",
+    "typical_guest_range": [100, 800],
+    "typical_budget_per_head_usd": [40, 120],
+    "typical_duration_hours": 6,
+    "recommended_menu_structure": {
+      "starters": 3,
+      "mains": 4,
+      "accompaniments": 3,
+      "breads": 1,
+      "desserts": 2,
+      "beverages": 3
+    },
+    "must_have_options": ["vegetarian_main", "halal_main", "premium_protein"],
+    "avoid": [],
+    "serving_style": "live_counter_plus_buffet",
+    "setup_time_hours": 4,
+    "cleanup_time_hours": 2,
+    "typical_staff_per_100_guests": 6,
+    "notes": "Singapore weddings often serve multi-cultural cuisine. Confirm dietary needs per community (halal, vegetarian, etc.)."
+  },
+  {
+    "id": "tmpl_003",
+    "event_type": "birthday_party",
+    "description": "Celebratory event, typically fun and informal. Can range from kids to adult parties.",
+    "typical_guest_range": [20, 200],
+    "typical_budget_per_head_usd": [20, 60],
+    "typical_duration_hours": 3,
+    "recommended_menu_structure": {
+      "starters": 2,
+      "mains": 2,
+      "accompaniments": 1,
+      "desserts": 2,
+      "beverages": 2
+    },
+    "must_have_options": ["cake_or_dessert", "vegetarian_option"],
+    "avoid": ["overly_formal_presentation"],
+    "serving_style": "buffet",
+    "setup_time_hours": 2,
+    "cleanup_time_hours": 1.5,
+    "typical_staff_per_100_guests": 4,
+    "notes": "Always ask: kids party or adult? For kids, ensure nut-free options — many Singapore schools enforce nut-free policies."
+  },
+  {
+    "id": "tmpl_004",
+    "event_type": "cocktail_reception",
+    "description": "Evening standing event with finger foods and drinks. No seated dinner.",
+    "typical_guest_range": [30, 300],
+    "typical_budget_per_head_usd": [25, 70],
+    "typical_duration_hours": 2.5,
+    "recommended_menu_structure": {
+      "canapes": 4,
+      "finger_foods": 3,
+      "dessert_bites": 2,
+      "beverages": 3
+    },
+    "must_have_options": ["vegetarian_canapes", "halal_canapes"],
+    "avoid": ["messy_foods", "foods_requiring_cutlery"],
+    "serving_style": "passed_trays_plus_stations",
+    "setup_time_hours": 2,
+    "cleanup_time_hours": 1,
+    "typical_staff_per_100_guests": 5,
+    "notes": "Portion sizes are smaller (finger food). Calculate 8-10 pieces per guest per hour."
+  },
+  {
+    "id": "tmpl_005",
+    "event_type": "conference",
+    "description": "Professional multi-session event. Typically includes morning tea, lunch, afternoon tea.",
+    "typical_guest_range": [30, 500],
+    "typical_budget_per_head_usd": [25, 50],
+    "typical_duration_hours": 8,
+    "recommended_menu_structure": {
+      "morning_tea_snacks": 2,
+      "lunch_mains": 2,
+      "lunch_salad": 1,
+      "lunch_dessert": 1,
+      "afternoon_tea_snacks": 1,
+      "beverages": 3
+    },
+    "must_have_options": ["vegetarian_options", "gluten_free_option", "tea_coffee"],
+    "avoid": ["heavy_oily_food", "foods_causing_drowsiness"],
+    "serving_style": "buffet",
+    "setup_time_hours": 2,
+    "cleanup_time_hours": 1.5,
+    "typical_staff_per_100_guests": 3,
+    "notes": "Plan for 3 service windows. Lunch must be ready by 1pm. Singapore conferences commonly require halal options."
+  },
+  {
+    "id": "tmpl_006",
+    "event_type": "gala_dinner",
+    "description": "Formal seated dinner. High presentation, plated or premium buffet, evening dress code.",
+    "typical_guest_range": [50, 500],
+    "typical_budget_per_head_usd": [60, 180],
+    "typical_duration_hours": 4,
+    "recommended_menu_structure": {
+      "amuse_bouche": 1,
+      "starters": 2,
+      "mains": 3,
+      "accompaniments": 2,
+      "desserts": 2,
+      "beverages": 3
+    },
+    "must_have_options": ["premium_protein", "vegetarian_option", "plated_dessert"],
+    "avoid": ["finger_foods_only", "self_service"],
+    "serving_style": "plated_or_premium_buffet",
+    "setup_time_hours": 4,
+    "cleanup_time_hours": 2,
+    "typical_staff_per_100_guests": 8,
+    "notes": "Highest margin event type. Focus on quality over quantity. Presentation is critical."
+  }
+]
