@@ -13,27 +13,68 @@ from agents.monitoring_agent import run_monitoring
 MAX_REPLAN_ATTEMPTS = 1
 
 
-async def run_pipeline(
+REQUIRED_FIELDS = {
+    "guest_count": "Guest count (e.g. 200 guests)",
+    "budget_usd": "Budget (e.g. $12,000 or ₹4,00,000)",
+    "event_type": "Event type (e.g. wedding, corporate lunch, gala dinner)",
+    "event_date": "Event date (e.g. 15 June 2026)",
+    "event_time": "Event time (e.g. 7:00 PM)",
+    "venue": "Venue / location (e.g. Marina Bay Sands, Singapore)",
+}
+
+RECOMMENDED_FIELDS = {
+    "dietary_requirements": "Dietary preferences (e.g. halal, vegetarian, vegan)",
+}
+
+
+def validate_intake(state: EventState) -> tuple[list[str], list[str]]:
+    """Return (missing_required, missing_recommended) field descriptions."""
+    missing_req = []
+    for field, label in REQUIRED_FIELDS.items():
+        val = getattr(state.customer, field, None)
+        if val is None or val == 0:
+            missing_req.append(label)
+
+    missing_rec = []
+    for field, label in RECOMMENDED_FIELDS.items():
+        val = getattr(state.customer, field, None)
+        if not val or (isinstance(val, list) and len(val) == 0):
+            missing_rec.append(label)
+
+    return missing_req, missing_rec
+
+
+async def run_intake_only(
     user_input: str,
-    event_id: str = None,
     log_callback: Optional[Callable[[EventState], None]] = None,
 ) -> EventState:
-    """Run the full OrchefAI agent pipeline with recovery loop."""
-
-    state = load_event_state(event_id) if event_id else EventState()
-    state.status = "in_progress"
+    """Run only the intake step and return state for validation."""
+    state = EventState()
+    state.status = "validating"
     state.customer.raw_input = user_input
     save_event_state(state)
 
     print(f"\n{'='*50}", flush=True)
-    print("[OrchefAI] Pipeline started", flush=True)
+    print("[OrchefAI] Intake Agent — parsing request", flush=True)
     print(f"{'='*50}", flush=True)
 
-    # Step 1: Intake
-    print("\n[OrchefAI] Step 1/5: Intake Agent", flush=True)
     state = await run_intake(user_input, state)
     _notify(log_callback, state)
     save_event_state(state)
+    return state
+
+
+async def run_pipeline_from_state(
+    state: EventState,
+    log_callback: Optional[Callable[[EventState], None]] = None,
+) -> EventState:
+    """Run pipeline steps 2-5 + recovery loop on an already-intake-validated state."""
+    state.status = "in_progress"
+    save_event_state(state)
+
+    print(f"\n{'='*50}", flush=True)
+    print("[OrchefAI] Pipeline continuing after validation", flush=True)
+    print(f"{'='*50}", flush=True)
 
     # Step 2+3: Menu + Inventory in PARALLEL
     print("\n[OrchefAI] Step 2+3: Menu Agent ║ Inventory Agent (parallel)", flush=True)
@@ -106,6 +147,16 @@ async def run_pipeline(
     state.log("Orchestrator", "Pipeline complete", f"Status: {state.status}")
     _notify(log_callback, state)
     return state
+
+
+async def run_pipeline(
+    user_input: str,
+    event_id: str = None,
+    log_callback: Optional[Callable[[EventState], None]] = None,
+) -> EventState:
+    """Full pipeline: intake + validation + remaining steps. Used by non-UI callers."""
+    state = await run_intake_only(user_input, log_callback)
+    return await run_pipeline_from_state(state, log_callback)
 
 
 def _notify(callback: Optional[Callable], state: EventState):

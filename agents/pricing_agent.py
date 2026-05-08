@@ -1,8 +1,8 @@
 import json
 import time
 from models.event_state import EventState, PricingData, CostBreakdown
-from config import call_agent
-from agents.prompts import PRICING_PROMPT
+from config import call_agent, get_cost_profile
+from agents.prompts import build_pricing_prompt
 
 
 async def run_pricing(state: EventState) -> EventState:
@@ -24,12 +24,15 @@ MENU DATA:
 
 Calculate the complete cost breakdown, check budget feasibility, and suggest pricing."""
 
-        raw = await call_agent(PRICING_PROMPT, user_msg, "pricing")
+        cost_profile = get_cost_profile(state.customer.venue)
+        pricing_prompt = build_pricing_prompt(cost_profile)
+
+        raw = await call_agent(pricing_prompt, user_msg, "pricing")
         data = _parse_json(raw)
 
         if data is None:
             retry_msg = f"Your previous response was not valid JSON. {user_msg}\nReturn ONLY the JSON object."
-            raw = await call_agent(PRICING_PROMPT, retry_msg, "pricing")
+            raw = await call_agent(pricing_prompt, retry_msg, "pricing")
             data = _parse_json(raw)
 
         if data is None:
