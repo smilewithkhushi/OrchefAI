@@ -131,8 +131,3 @@ User Input (NL)
       ↓
  Final Catering Plan (JSON + human-readable)
 ```
-
----
-
-## Team
-Built for CWB Hackathon 2026 — iNextLabs Problem Statement

@@ -5,6 +5,8 @@
 
 .claude
 
+.streamlit
+
 # Python
 __pycache__/
 *.pyc
