@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit.components.v1 import html as st_html
 import asyncio
 import textwrap
+from tools.pdf_export import generate_pdf
 from agents.orchestrator import run_pipeline, run_intake_only, run_pipeline_from_state, validate_intake
 from models.event_state import (
     EventState, CustomerData, MenuData, MenuItem, InventoryData,
@@ -884,6 +885,24 @@ def render_results_panel(state, placeholder):
                 </div>
             </div>
             """)
+
+        # --- Action buttons ---
+        btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 1])
+        with btn_col1:
+            pdf_bytes = generate_pdf(state)
+            event_type = (state.customer.event_type or "event").replace("_", "-")
+            filename = f"orchefai-{event_type}-{state.customer.guest_count or 0}guests.pdf"
+            st.download_button(
+                label="Download PDF Report",
+                data=pdf_bytes,
+                file_name=filename,
+                mime="application/pdf",
+                use_container_width=True,
+            )
+        with btn_col2:
+            st.page_link("pages/1_Restaurant_Profile.py", label="Restaurant Profile", use_container_width=True)
+        with btn_col3:
+            st.page_link("pages/2_Event_History.py", label="Event History", use_container_width=True)
 
         _html("""
         <hr class="section-divider">

@@ -63,6 +63,8 @@ Calculate the complete cost breakdown, check budget feasibility, and suggest pri
             notes=data.get("pricing_notes", ""),
         )
 
+        _validate_pricing_math(state)
+
         duration = int((time.time() - start) * 1000)
         feasible = "FEASIBLE" if state.pricing.budget_feasible else f"SHORTFALL ${state.pricing.budget_shortfall_usd:.2f}"
         summary = f"Total: ${cost_breakdown.total_cost_usd:.2f}, per head: ${state.pricing.per_head_cost_usd:.2f}, margin: {state.pricing.margin_percentage:.1f}%, budget: {feasible}"
@@ -72,6 +74,35 @@ Calculate the complete cost breakdown, check budget feasibility, and suggest pri
         state.log("PricingAgent", "Agent error", str(e)[:200], "error")
 
     return state
+
+
+def _validate_pricing_math(state: EventState):
+    """Recalculate derived pricing fields — LLMs are unreliable at arithmetic."""
+    cb = state.pricing.cost_breakdown
+    recalc_total = (cb.ingredient_cost_usd + cb.labor_cost_usd +
+                    cb.logistics_cost_usd + cb.packaging_cost_usd + cb.overhead_usd)
+    if abs(recalc_total - cb.total_cost_usd) > 1.0:
+        cb.total_cost_usd = round(recalc_total, 2)
+
+    total_cost = cb.total_cost_usd
+    guest_count = state.customer.guest_count or 1
+    budget = state.customer.budget_usd or 0
+    suggested = state.pricing.suggested_price_usd
+
+    if suggested < total_cost:
+        suggested = round(total_cost / 0.80, 2)
+        state.pricing.suggested_price_usd = suggested
+
+    if suggested > 0:
+        state.pricing.margin_percentage = round(
+            (suggested - total_cost) / suggested * 100, 1)
+        state.pricing.food_cost_percentage = round(
+            cb.ingredient_cost_usd / suggested * 100, 1)
+
+    state.pricing.per_head_cost_usd = round(total_cost / guest_count, 2)
+    state.pricing.suggested_price_per_head_usd = round(suggested / guest_count, 2)
+    state.pricing.budget_feasible = budget >= suggested
+    state.pricing.budget_shortfall_usd = round(max(0, suggested - budget), 2)
 
 
 def _parse_json(raw: str) -> dict | None:

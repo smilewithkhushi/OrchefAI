@@ -4,6 +4,7 @@ import time
 from typing import Callable, Optional
 from models.event_state import EventState
 from tools.cosmos_tool import save_event_state, load_event_state
+from tools.history_db import save_completed_event
 from agents.intake_agent import run_intake
 from agents.menu_agent import run_menu
 from agents.inventory_agent import run_inventory
@@ -144,6 +145,10 @@ async def run_pipeline_from_state(
 
     state.status = "complete" if state.monitoring.final_approved else "needs_review"
     save_event_state(state)
+    try:
+        save_completed_event(state)
+    except Exception as e:
+        print(f"[OrchefAI] Warning: failed to save event history: {e}", flush=True)
     state.log("Orchestrator", "Pipeline complete", f"Status: {state.status}")
     _notify(log_callback, state)
     return state
