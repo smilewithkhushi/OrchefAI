@@ -8,6 +8,7 @@ load_dotenv()
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY")
 NVIDIA_BASE_URL = os.getenv("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1")
 
+
 AGENT_MODELS = {
     "orchestrator": "nvidia/nemotron-4-340b-instruct",
     "intake": "meta/llama-3.1-70b-instruct",
@@ -29,10 +30,11 @@ COSMOS_DATABASE = os.getenv("COSMOS_DATABASE", "orchefai")
 COSMOS_CONTAINER = os.getenv("COSMOS_CONTAINER", "events")
 
 # Region-based cost profiles (all monetary values in USD)
+# staff_hourly_rate_usd: average hourly wage for catering staff in that region
 COST_PROFILES = {
     "singapore": {
         "label": "Singapore",
-        "staff_cost_per_event_usd": 25.0,
+        "staff_hourly_rate_usd": 12.0,
         "logistics_cost_per_km_usd": 1.50,
         "packaging_cost_per_guest_usd": 1.50,
         "default_distance_km": 15,
@@ -42,7 +44,7 @@ COST_PROFILES = {
     },
     "india": {
         "label": "India",
-        "staff_cost_per_event_usd": 8.0,
+        "staff_hourly_rate_usd": 2.50,
         "logistics_cost_per_km_usd": 0.40,
         "packaging_cost_per_guest_usd": 0.50,
         "default_distance_km": 20,
@@ -52,7 +54,7 @@ COST_PROFILES = {
     },
     "usa": {
         "label": "United States",
-        "staff_cost_per_event_usd": 35.0,
+        "staff_hourly_rate_usd": 22.0,
         "logistics_cost_per_km_usd": 2.50,
         "packaging_cost_per_guest_usd": 2.00,
         "default_distance_km": 25,
@@ -62,7 +64,7 @@ COST_PROFILES = {
     },
     "uk": {
         "label": "United Kingdom",
-        "staff_cost_per_event_usd": 32.0,
+        "staff_hourly_rate_usd": 17.0,
         "logistics_cost_per_km_usd": 2.20,
         "packaging_cost_per_guest_usd": 1.80,
         "default_distance_km": 20,
@@ -72,7 +74,7 @@ COST_PROFILES = {
     },
     "uae": {
         "label": "UAE / Middle East",
-        "staff_cost_per_event_usd": 22.0,
+        "staff_hourly_rate_usd": 10.0,
         "logistics_cost_per_km_usd": 1.20,
         "packaging_cost_per_guest_usd": 1.80,
         "default_distance_km": 20,
@@ -80,9 +82,39 @@ COST_PROFILES = {
         "min_margin_percentage": 0.20,
         "currency_note": "AED converted at ~0.27 USD",
     },
+    "australia": {
+        "label": "Australia",
+        "staff_hourly_rate_usd": 19.0,
+        "logistics_cost_per_km_usd": 2.00,
+        "packaging_cost_per_guest_usd": 1.80,
+        "default_distance_km": 20,
+        "overhead_percentage": 0.12,
+        "min_margin_percentage": 0.20,
+        "currency_note": "AUD converted at ~0.65 USD",
+    },
+    "europe": {
+        "label": "Europe",
+        "staff_hourly_rate_usd": 16.0,
+        "logistics_cost_per_km_usd": 2.00,
+        "packaging_cost_per_guest_usd": 1.60,
+        "default_distance_km": 20,
+        "overhead_percentage": 0.12,
+        "min_margin_percentage": 0.20,
+        "currency_note": "EUR converted at ~1.09 USD",
+    },
+    "southeast_asia": {
+        "label": "Southeast Asia",
+        "staff_hourly_rate_usd": 5.0,
+        "logistics_cost_per_km_usd": 0.80,
+        "packaging_cost_per_guest_usd": 0.80,
+        "default_distance_km": 15,
+        "overhead_percentage": 0.10,
+        "min_margin_percentage": 0.20,
+        "currency_note": "Local currency converted to USD",
+    },
     "default": {
         "label": "Global Default",
-        "staff_cost_per_event_usd": 20.0,
+        "staff_hourly_rate_usd": 12.0,
         "logistics_cost_per_km_usd": 1.50,
         "packaging_cost_per_guest_usd": 1.50,
         "default_distance_km": 20,
@@ -94,10 +126,13 @@ COST_PROFILES = {
 
 REGION_KEYWORDS = {
     "singapore": ["singapore", "sg", "marina bay", "raffles", "orchard", "changi"],
-    "india": ["india", "mumbai", "delhi", "bangalore", "bengaluru", "hyderabad", "chennai", "kolkata", "pune", "jaipur", "noida", "gurgaon", "gurugram", "lucknow", "ahmedabad", "goa", "cochin", "kochi", "chandigarh", "indore"],
-    "usa": ["usa", "us", "united states", "new york", "los angeles", "chicago", "san francisco", "miami", "texas", "california", "manhattan"],
-    "uk": ["uk", "united kingdom", "london", "manchester", "birmingham", "edinburgh", "england", "scotland"],
-    "uae": ["uae", "dubai", "abu dhabi", "sharjah", "doha", "qatar", "riyadh", "saudi", "middle east"],
+    "india": ["india", "mumbai", "delhi", "bangalore", "bengaluru", "hyderabad", "chennai", "kolkata", "pune", "jaipur", "noida", "gurgaon", "gurugram", "lucknow", "ahmedabad", "goa", "cochin", "kochi", "chandigarh", "indore", "surat", "nagpur"],
+    "usa": ["usa", "us", "united states", "new york", "los angeles", "chicago", "san francisco", "miami", "texas", "california", "manhattan", "boston", "seattle", "washington", "atlanta", "denver", "houston", "dallas"],
+    "uk": ["uk", "united kingdom", "london", "manchester", "birmingham", "edinburgh", "england", "scotland", "liverpool", "bristol", "oxford", "cambridge"],
+    "uae": ["uae", "dubai", "abu dhabi", "sharjah", "doha", "qatar", "riyadh", "saudi", "middle east", "bahrain", "kuwait", "oman", "muscat", "jeddah"],
+    "australia": ["australia", "sydney", "melbourne", "brisbane", "perth", "adelaide", "canberra", "auckland", "new zealand"],
+    "europe": ["france", "paris", "germany", "berlin", "munich", "italy", "rome", "milan", "spain", "madrid", "barcelona", "amsterdam", "netherlands", "zurich", "switzerland", "vienna", "austria", "brussels", "belgium", "lisbon", "portugal"],
+    "southeast_asia": ["malaysia", "kuala lumpur", "thailand", "bangkok", "indonesia", "jakarta", "bali", "vietnam", "hanoi", "ho chi minh", "philippines", "manila", "cambodia"],
 }
 
 
@@ -110,6 +145,80 @@ def get_cost_profile(venue: str | None) -> dict:
         if any(kw in venue_lower for kw in keywords):
             return COST_PROFILES[region]
     return COST_PROFILES["default"]
+
+
+# Staffing ratios: guests per 1 staff member
+STAFFING_RATIOS = {
+    "buffet":              {"servers": 25, "chefs": 40},
+    "plated":              {"servers": 10, "chefs": 30},
+    "family_style":        {"servers": 15, "chefs": 35},
+    "cocktail_pass":       {"servers": 15, "chefs": 35},
+    "food_stations":       {"servers": 20, "chefs": 30},
+}
+
+# Typical event duration in hours by event type
+EVENT_DURATION_HOURS = {
+    "wedding": 8,
+    "gala_dinner": 6,
+    "corporate_lunch": 4,
+    "conference": 5,
+    "birthday_party": 5,
+    "cocktail_reception": 3,
+    "baby_shower": 4,
+    "engagement_party": 5,
+    "anniversary": 5,
+    "graduation_party": 4,
+    "festival_/_cultural": 6,
+    "charity_event": 5,
+    "product_launch": 4,
+    "team_building": 5,
+}
+
+
+def calculate_staffing(
+    guest_count: int,
+    service_style: str | None,
+    event_type: str | None,
+    venue: str | None,
+) -> dict:
+    """Calculate staff count and total labor cost based on event parameters.
+
+    Returns dict with staff_count, event_hours, hourly_rate, total_labor_cost_usd,
+    and a breakdown of roles.
+    """
+    style = service_style or "buffet"
+    ratios = STAFFING_RATIOS.get(style, STAFFING_RATIOS["buffet"])
+
+    import math
+    servers = max(2, math.ceil(guest_count / ratios["servers"]))
+    chefs = max(1, math.ceil(guest_count / ratios["chefs"]))
+    head_chef = 1
+    supervisor = 1
+    dishwashers = max(1, math.ceil(guest_count / 50))
+
+    total_staff = servers + chefs + head_chef + supervisor + dishwashers
+
+    event_hours = EVENT_DURATION_HOURS.get(event_type, 5)
+
+    cost_profile = get_cost_profile(venue)
+    hourly_rate = cost_profile["staff_hourly_rate_usd"]
+
+    total_labor_cost = round(total_staff * event_hours * hourly_rate, 2)
+
+    return {
+        "staff_count": total_staff,
+        "breakdown": {
+            "servers": servers,
+            "chefs": chefs,
+            "head_chef": head_chef,
+            "supervisor": supervisor,
+            "dishwashers": dishwashers,
+        },
+        "event_hours": event_hours,
+        "hourly_rate_usd": hourly_rate,
+        "total_labor_cost_usd": total_labor_cost,
+        "region": cost_profile["label"],
+    }
 
 
 def _get_client() -> OpenAI:

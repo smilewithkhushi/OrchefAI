@@ -22,8 +22,28 @@ async def run_menu(state: EventState) -> EventState:
         customer_context = state.customer.model_dump_json()
         constraints = state.customer.special_requests or ""
 
+        cuisine_prefs = ", ".join(state.customer.cuisine_preferences) if state.customer.cuisine_preferences else "No preference"
+        service = state.customer.service_style or "No preference"
+        courses = ", ".join(state.customer.meal_courses) if state.customer.meal_courses else "Full course"
+        beverages = ", ".join(state.customer.beverage_options) if state.customer.beverage_options else "Standard"
+        variety = state.customer.menu_variety or ("minimal" if guest_count <= 30 else "moderate" if guest_count <= 100 else "extensive")
+        budget_range = ""
+        if state.customer.budget_min_usd and state.customer.budget_max_usd:
+            budget_range = f"Budget range: ${state.customer.budget_min_usd:.0f} – ${state.customer.budget_max_usd:.0f}"
+
         user_msg = f"""CUSTOMER DATA:
 {customer_context}
+
+PREFERENCES:
+- Cuisine preferences: {cuisine_prefs}
+- Service style: {service}
+- Meal courses requested: {courses}
+- Menu variety: {variety} (controls number of dishes per course)
+- Beverages: {beverages}
+- Alcohol service: {state.customer.alcohol_service}
+- Indoor/Outdoor: {state.customer.indoor_outdoor or "Not specified"}
+- Kitchen available at venue: {state.customer.venue_kitchen_available}
+{budget_range}
 
 AVAILABLE DISHES FROM KNOWLEDGE BASE:
 {rag_context}

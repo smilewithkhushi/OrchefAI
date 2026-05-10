@@ -1,7 +1,7 @@
 import json
 import time
 from models.event_state import EventState, PricingData, CostBreakdown
-from config import call_agent, get_cost_profile
+from config import call_agent, get_cost_profile, calculate_staffing
 from agents.prompts import build_pricing_prompt
 
 
@@ -13,6 +13,13 @@ async def run_pricing(state: EventState) -> EventState:
         inventory_data = state.inventory.model_dump()
         menu_data = {"items": [i.model_dump() for i in state.menu.items]}
 
+        staffing = calculate_staffing(
+            guest_count=state.customer.guest_count or 1,
+            service_style=state.customer.service_style,
+            event_type=state.customer.event_type,
+            venue=state.customer.venue,
+        )
+
         user_msg = f"""CUSTOMER DATA:
 {json.dumps(customer_data, indent=2)}
 
@@ -21,6 +28,12 @@ INVENTORY DATA:
 
 MENU DATA:
 {json.dumps(menu_data, indent=2)}
+
+PRE-CALCULATED LABOR COST:
+- Total staff: {staffing['staff_count']} ({staffing['breakdown']['servers']} servers, {staffing['breakdown']['chefs']} chefs, {staffing['breakdown']['head_chef']} head chef, {staffing['breakdown']['supervisor']} supervisor, {staffing['breakdown']['dishwashers']} dishwashers)
+- Event duration: {staffing['event_hours']} hours
+- Hourly rate ({staffing['region']}): ${staffing['hourly_rate_usd']}/hr
+- TOTAL LABOR COST: ${staffing['total_labor_cost_usd']} (USE THIS EXACT VALUE for labor_cost_usd)
 
 Calculate the complete cost breakdown, check budget feasibility, and suggest pricing."""
 
@@ -39,14 +52,22 @@ Calculate the complete cost breakdown, check budget feasibility, and suggest pri
             state.log("PricingAgent", "Failed to parse response", raw[:200] if raw else "No response", "error")
             return state
 
-        breakdown_data = data.get("cost_breakdown", {})
+        guest_count = state.customer.guest_count or 1
+        ingredient_cost = state.inventory.total_ingredient_cost_usd or 0.0
+        labor_cost = staffing["total_labor_cost_usd"]
+        logistics_cost = round(cost_profile["logistics_cost_per_km_usd"] * cost_profile["default_distance_km"], 2)
+        packaging_cost = round(cost_profile["packaging_cost_per_guest_usd"] * guest_count, 2)
+        subtotal = ingredient_cost + labor_cost + logistics_cost + packaging_cost
+        overhead = round(subtotal * cost_profile["overhead_percentage"], 2)
+        total_cost = round(subtotal + overhead, 2)
+
         cost_breakdown = CostBreakdown(
-            ingredient_cost_usd=breakdown_data.get("ingredient_cost_usd", state.inventory.total_ingredient_cost_usd),
-            labor_cost_usd=breakdown_data.get("labor_cost_usd", 0.0),
-            logistics_cost_usd=breakdown_data.get("logistics_cost_usd", 0.0),
-            packaging_cost_usd=breakdown_data.get("packaging_cost_usd", 0.0),
-            overhead_usd=breakdown_data.get("overhead_usd", 0.0),
-            total_cost_usd=breakdown_data.get("total_cost_usd", 0.0),
+            ingredient_cost_usd=ingredient_cost,
+            labor_cost_usd=labor_cost,
+            logistics_cost_usd=logistics_cost,
+            packaging_cost_usd=packaging_cost,
+            overhead_usd=overhead,
+            total_cost_usd=total_cost,
         )
 
         state.pricing = PricingData(

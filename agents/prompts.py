@@ -34,7 +34,7 @@ Extract the following fields:
 - event_time: HH:MM 24-hour format
 - guest_count: integer
 - venue: string (full location including city/country if mentioned)
-- dietary_requirements: array from [halal, vegetarian, vegan, gluten-free, jain, nut-free, diabetic-friendly, keto]
+- dietary_requirements: array from [non-veg, vegetarian, vegan, halal, seafood, jain, gluten-free, nut-free, dairy-free, egg-free, diabetic-friendly, keto, pescatarian, kosher]
 - budget_usd: float in US dollars. Convert from local currencies: SGD x 0.75, INR x 0.012, GBP x 1.27, EUR x 1.09, AED x 0.27. NOTE: "1 lakh" = 100,000 and "1 crore" = 10,000,000 (Indian number system).
 - special_requests: string (any additional requirements)
 
@@ -65,14 +65,24 @@ MENU_PROMPT = """You are the OrchefAI Menu Planning Agent. You are an expert cul
 
 You receive:
 - EventState.customer (event type, guest count, dietary requirements, budget in USD)
+- Customer preferences: cuisine preferences, service style, meal courses, beverage options
 - Retrieved dishes from the knowledge base (via RAG from Azure AI Search)
 
 Your job:
-1. Select an appropriate menu structure based on event_type template
-2. Choose dishes that satisfy ALL dietary requirements
-3. Calculate portion sizes (add 10% buffer to guest count for safety)
-4. Ensure menu has variety across categories (starter, main, accompaniment, dessert, beverage)
-5. Stay within the food cost budget (target 35-40% of total budget for food costs)
+1. Select an appropriate menu structure based on event_type and service_style (buffet, plated, cocktail pass-around, food stations, family style)
+2. Prioritise dishes matching the customer's cuisine preferences when available
+3. Choose dishes that satisfy ALL dietary requirements
+4. Include only the meal courses the customer requested (starters, soup, main, sides, dessert, live station)
+5. Include beverage selections matching the customer's beverage options and alcohol preference
+6. Calculate portion sizes (add 10% buffer to guest count for safety)
+7. Control the NUMBER OF DISHES based on menu_variety and guest count:
+   - "minimal" variety: 1-2 dishes per course (best for small events ≤30 guests)
+   - "moderate" variety: 2-3 dishes per course (standard for 30-100 guests)
+   - "extensive" variety: 4-5 dishes per course (large events 100+ guests or buffets)
+   - If no variety specified, use guest count to decide: ≤30 = minimal, 31-100 = moderate, 100+ = extensive
+   - Sides (rice, bread, naan) count as SIDES not main course items — categorize correctly
+8. Stay within the food cost budget (target 35-40% of total budget for food costs)
+9. If a budget range is provided, aim for quality at the midpoint and suggest premium upgrades within the max
 
 DIETARY COMPLIANCE RULES:
 - Halal events: ONLY use halal-certified ingredients and MUIS halal-certified suppliers
@@ -176,7 +186,7 @@ Your job:
 
 REGIONAL COST PROFILE ({region_label}):
 - Ingredient cost: from inventory.total_ingredient_cost_usd
-- Labor cost: staff_count x ${staff_cost} per staff per event (use event template for staff ratio)
+- Labor cost: PRE-CALCULATED — use the exact value from PRE-CALCULATED LABOR COST in the input. Do NOT recalculate.
 - Logistics cost: delivery ${logistics_cost}/km (assume {distance_km}km average)
 - Packaging cost: ${packaging_cost} per guest
 - Overhead: {overhead_pct}% of subtotal
@@ -218,7 +228,6 @@ OUTPUT FORMAT: Return ONLY valid JSON. No preamble. No explanation. No markdown 
 def build_pricing_prompt(cost_profile: dict) -> str:
     return PRICING_PROMPT_TEMPLATE.format(
         region_label=cost_profile["label"],
-        staff_cost=cost_profile["staff_cost_per_event_usd"],
         logistics_cost=cost_profile["logistics_cost_per_km_usd"],
         distance_km=cost_profile["default_distance_km"],
         packaging_cost=cost_profile["packaging_cost_per_guest_usd"],

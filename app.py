@@ -1,5 +1,7 @@
 import streamlit as st
-from streamlit.components.v1 import html as st_html
+from audio_recorder_streamlit import audio_recorder
+from utils.transcribe import transcribe_audio
+from utils.audio_storage import save_audio
 import asyncio
 import textwrap
 from tools.pdf_export import generate_pdf
@@ -486,10 +488,6 @@ DEMO_STATES = {
 }
 
 # --- Query param handlers ---
-if "voice_text" in st.query_params:
-    st.session_state["event_input"] = st.query_params["voice_text"]
-    st.query_params.clear()
-    st.rerun()
 if "qf_demo" in st.query_params:
     key = st.query_params["qf_demo"]
     if key in DEMO_STATES:
@@ -918,191 +916,231 @@ def render_results_panel(state, placeholder):
 
 st.markdown('<div class="card-header">Event Request</div>', unsafe_allow_html=True)
 
-col_input, col_qf = st.columns([3, 2], gap="medium")
+free_text_mode = st.toggle("Switch to free-text mode", value=False, key="free_text_toggle")
 
-# --- Left: textarea + voice ---
-with col_input:
-    user_input = st.text_area(
-        "Describe your catering requirement:",
-        key="event_input",
-        placeholder='e.g. "Plan a halal dinner for 200 guests this Saturday at Marina Bay Sands, 7 PM, budget $12,000"',
-        height=140,
-        label_visibility="collapsed",
-    )
+if free_text_mode:
+    # --- Free-text fallback (old mode) ---
+    col_input, col_qf = st.columns([3, 2], gap="medium")
+    with col_input:
+        user_input = st.text_area(
+            "Describe your catering requirement:",
+            key="event_input",
+            placeholder='e.g. "Plan a halal dinner for 200 guests this Saturday at Marina Bay Sands, 7 PM, budget $12,000"',
+            height=140,
+            label_visibility="collapsed",
+        )
 
-    VOICE_HTML = """
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: transparent; }
-        .voice-row { display: flex; align-items: center; gap: 10px; font-family: 'Inter', sans-serif; }
-        .mic-btn {
-            width: 38px; height: 38px; border-radius: 50%;
-            background: #1C1714; border: 1.5px solid #2A231E;
-            color: #C9A962; font-size: 1.1rem;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
-        }
-        .mic-btn:hover { border-color: #C9A962; }
-        .mic-btn.recording {
-            background: rgba(220, 38, 38, 0.15); border-color: #DC2626; color: #DC2626;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.3); }
-            50% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
-        }
-        .voice-status { font-size: 0.78rem; color: #6B7280; letter-spacing: 0.3px; }
-        .voice-status.active { color: #DC2626; font-weight: 500; }
-        .voice-preview { font-size: 0.78rem; color: #9CA3AF; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .no-support { font-size: 0.78rem; color: #4B5563; }
-    </style>
-    <div class="voice-row" id="voiceRow">
-        <button class="mic-btn" id="micBtn" onclick="toggleVoice()" title="Voice input">&#127908;</button>
-        <span class="voice-status" id="status">Voice input</span>
-        <span class="voice-preview" id="preview"></span>
-    </div>
-    <div class="no-support" id="noSupport" style="display:none;">Voice input requires Chrome or Edge.</div>
-    <script>
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) { document.getElementById('voiceRow').style.display='none'; document.getElementById('noSupport').style.display='block'; }
-    else {
-        const r = new SR(); r.lang='en-US'; r.interimResults=true; r.continuous=true; r.maxAlternatives=1;
-        let rec=false, ft='', to=null;
-        r.onresult = function(e) {
-            let interim = '';
-            for (let i = e.resultIndex; i < e.results.length; i++) {
-                if (e.results[i].isFinal) ft += e.results[i][0].transcript + ' ';
-                else interim += e.results[i][0].transcript;
-            }
-            document.getElementById('preview').textContent = ft + interim;
-            clearTimeout(to);
-            to = setTimeout(function() { stop(); }, 4000);
-        };
-        r.onend = function() { if (rec) stop(); };
-        r.onerror = function(e) {
-            if (e.error !== 'no-speech' && e.error !== 'aborted')
-                document.getElementById('status').textContent = 'Error: ' + e.error;
-            rec = false;
-            document.getElementById('micBtn').classList.remove('recording');
-        };
-        window.toggleVoice = function() {
-            if (rec) { stop(); }
-            else {
-                ft = '';
-                document.getElementById('preview').textContent = '';
-                document.getElementById('status').textContent = 'Listening...';
-                document.getElementById('status').classList.add('active');
-                document.getElementById('micBtn').classList.add('recording');
-                rec = true; r.start();
-                to = setTimeout(function() { stop(); }, 60000);
-            }
-        };
-        function stop() {
-            clearTimeout(to); rec = false; r.stop();
-            document.getElementById('micBtn').classList.remove('recording');
-            document.getElementById('status').classList.remove('active');
-            const t = ft.trim();
-            if (t) {
-                document.getElementById('status').textContent = 'Filling in...';
-                window.parent.location.href = window.parent.location.pathname + '?voice_text=' + encodeURIComponent(t);
-            } else { document.getElementById('status').textContent = 'Voice input'; }
-        }
-    }
-    </script>
-    """
-    st_html(VOICE_HTML, height=50)
+        audio_bytes = audio_recorder(
+            text="",
+            recording_color="#DC2626",
+            neutral_color="#C9A962",
+            icon_size="1.2rem",
+            pause_threshold=2.5,
+            sample_rate=16000,
+            key="voice_recorder",
+        )
 
-# --- Right: quick-fill preset cards ---
-with col_qf:
-    st.markdown("""
-    <style>
-        .qf-label {
-            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.72rem;
-            text-transform: uppercase; letter-spacing: 1px; color: #6B7280;
-            margin-bottom: 8px;
-        }
-        .qf-card {
-            background: #1C1714; border: 1px solid #2A231E; border-radius: 10px;
-            padding: 10px 14px; margin-bottom: 8px; cursor: pointer;
-            display: flex; align-items: center; gap: 10px; transition: all 0.2s;
-            text-decoration: none;
-        }
-        .qf-card:hover { border-color: #C9A962; background: rgba(201,169,98,0.05); }
-        .qf-icon { font-size: 1.4rem; flex-shrink: 0; }
-        .qf-title { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.8rem; color: #FAFAFA; }
-        .qf-detail { font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #6B7280; margin-top: 2px; }
-        .qf-budget { font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #C9A962; font-weight: 600; margin-top: 1px; }
-    </style>
-    <div class="qf-label">Demo Presets (Instant)</div>
-    <a class="qf-card" href="?qf_demo=wedding">
-        <div class="qf-icon">🕌</div>
-        <div>
-            <div class="qf-title">Halal Wedding Dinner</div>
-            <div class="qf-detail">200 guests · Marina Bay Sands · Sat 7 PM</div>
-            <div class="qf-budget">$15,000</div>
+        if audio_bytes:
+            with st.spinner("Transcribing..."):
+                try:
+                    event_id = None
+                    state = st.session_state.get("state")
+                    if hasattr(state, "event_id"):
+                        event_id = state.event_id
+                    save_audio(audio_bytes, event_id)
+
+                    transcript = transcribe_audio(audio_bytes)
+                    if transcript:
+                        current = st.session_state.get("event_input", "")
+                        if current.strip():
+                            st.session_state["event_input"] = current.rstrip() + " " + transcript
+                        else:
+                            st.session_state["event_input"] = transcript
+                        st.rerun()
+                    else:
+                        st.toast("Could not detect speech. Please try again.")
+                except Exception as e:
+                    st.error(f"Transcription failed: {e}")
+
+    with col_qf:
+        st.markdown("""
+        <style>
+            .qf-label { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #6B7280; margin-bottom: 8px; }
+            .qf-card { background: #1C1714; border: 1px solid #2A231E; border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; text-decoration: none; }
+            .qf-card:hover { border-color: #C9A962; background: rgba(201,169,98,0.05); }
+            .qf-icon { font-size: 1.4rem; flex-shrink: 0; }
+            .qf-title { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.8rem; color: #FAFAFA; }
+            .qf-detail { font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #6B7280; margin-top: 2px; }
+            .qf-budget { font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #C9A962; font-weight: 600; margin-top: 1px; }
+        </style>
+        <div class="qf-label">Demo Presets (Instant)</div>
+        <a class="qf-card" href="?qf_demo=wedding"><div class="qf-icon">🕌</div><div><div class="qf-title">Halal Wedding Dinner</div><div class="qf-detail">200 guests · Marina Bay Sands · Sat 7 PM</div><div class="qf-budget">$15,000</div></div></a>
+        <a class="qf-card" href="?qf_demo=corporate"><div class="qf-icon">🏢</div><div><div class="qf-title">Corporate Lunch</div><div class="qf-detail">50 guests · Raffles Place · Thu 12 PM</div><div class="qf-budget">$2,000</div></div></a>
+        <a class="qf-card" href="?qf_demo=gala"><div class="qf-icon">🍸</div><div><div class="qf-title">Gala Cocktail Reception</div><div class="qf-detail">150 guests · Fullerton Hotel · Fri 8 PM</div><div class="qf-budget">$12,000</div></div></a>
+        """, unsafe_allow_html=True)
+
+else:
+    # --- Structured Intake Form ---
+    user_input = None
+
+    from datetime import date, time as dt_time
+
+    EVENT_TYPES = ["Wedding", "Corporate Lunch", "Birthday Party", "Cocktail Reception", "Conference", "Gala Dinner", "Baby Shower", "Engagement Party", "Anniversary", "Graduation Party", "Festival / Cultural", "Charity Event", "Product Launch", "Team Building", "Other"]
+    EVENT_TYPE_MAP = {"Wedding": "wedding", "Corporate Lunch": "corporate_lunch", "Birthday Party": "birthday_party", "Cocktail Reception": "cocktail_reception", "Conference": "conference", "Gala Dinner": "gala_dinner", "Baby Shower": "baby_shower", "Engagement Party": "engagement_party", "Anniversary": "anniversary", "Graduation Party": "graduation_party", "Festival / Cultural": "festival_cultural", "Charity Event": "charity_event", "Product Launch": "product_launch", "Team Building": "team_building", "Other": "other"}
+    DIETARY_OPTIONS = ["Non-Veg", "Vegetarian", "Vegan", "Halal", "Seafood", "Jain", "Gluten-Free", "Nut-Free", "Dairy-Free", "Egg-Free", "Diabetic-Friendly", "Keto", "Pescatarian", "Kosher"]
+    CUISINE_OPTIONS = ["Asian", "Indian", "Mediterranean", "Western", "Middle Eastern", "Chinese", "Japanese", "Italian", "French", "Fusion"]
+    SERVICE_STYLES = ["Buffet", "Plated Service", "Family Style", "Cocktail Pass-Around", "Food Stations"]
+    SERVICE_STYLE_MAP = {"Buffet": "buffet", "Plated Service": "plated", "Family Style": "family_style", "Cocktail Pass-Around": "cocktail_pass", "Food Stations": "food_stations"}
+    COURSE_OPTIONS = ["Starters / Canapes", "Soup", "Main Course", "Side Dishes", "Dessert", "Live Cooking Station"]
+    BEVERAGE_OPTIONS = ["Non-Alcoholic", "Mocktails", "Wine", "Beer", "Full Bar", "Tea / Coffee Station"]
+
+    with st.form("intake_form", clear_on_submit=False):
+        # Section A: Event Basics
+        st.markdown('<p style="color:#C9A962; font-weight:600; font-size:0.85rem; margin-bottom:0.3rem;">ORDER DETAILS *</p>', unsafe_allow_html=True)
+        fa_col1, fa_col2 = st.columns(2)
+        with fa_col1:
+            form_event_type = st.selectbox("Event Type *", EVENT_TYPES, index=None, placeholder="Select event type...")
+            form_event_type_custom = st.text_input("If 'Other', specify event type", placeholder="e.g. Housewarming, Farewell Party...")
+            form_date = st.date_input("Event Date *", value=None, min_value=date.today())
+        with fa_col2:
+            form_guest_count = st.number_input("Expected Guests *", min_value=1, max_value=10000, value=None, step=10, placeholder="e.g. 200")
+            form_time = st.time_input("Service Time *", value=dt_time(19, 0))
+        form_venue = st.text_input("Venue / Delivery Location *", placeholder="e.g. Marina Bay Sands, Singapore")
+
+        # Section B: Budget
+        st.markdown('<p style="color:#C9A962; font-weight:600; font-size:0.85rem; margin-top:1rem; margin-bottom:0.3rem;">BUDGET (USD) *</p>', unsafe_allow_html=True)
+        fb_col1, fb_col2 = st.columns(2)
+        with fb_col1:
+            form_budget_min = st.number_input("Minimum Budget ($)", min_value=0, value=None, step=500, placeholder="e.g. 5000")
+        with fb_col2:
+            form_budget_max = st.number_input("Maximum Budget ($)", min_value=0, value=None, step=500, placeholder="e.g. 15000")
+
+        # Section C: Food & Dietary
+        st.markdown('<p style="color:#C9A962; font-weight:600; font-size:0.85rem; margin-top:1rem; margin-bottom:0.3rem;">FOOD & DIETARY PREFERENCES</p>', unsafe_allow_html=True)
+        form_dietary = st.multiselect("Dietary Requirements", DIETARY_OPTIONS, placeholder="Select dietary needs...")
+        fc_col1, fc_col2 = st.columns(2)
+        with fc_col1:
+            form_cuisines = st.multiselect("Cuisine Preferences", CUISINE_OPTIONS, placeholder="Select cuisines...")
+            form_courses = st.multiselect("Meal Courses", COURSE_OPTIONS, placeholder="Select courses...")
+        with fc_col2:
+            form_service_style = st.selectbox("Service Style", SERVICE_STYLES, index=None, placeholder="Select style...")
+            form_variety = st.selectbox("Menu Variety", ["Minimal (2-3 items)", "Moderate (4-6 items)", "Extensive (7+ items)"], index=1, help="How many dishes per course?")
+            form_beverages = st.multiselect("Beverages", BEVERAGE_OPTIONS, placeholder="Select beverages...")
+
+        # Section D: Logistics
+        st.markdown('<p style="color:#C9A962; font-weight:600; font-size:0.85rem; margin-top:1rem; margin-bottom:0.3rem;">LOGISTICS</p>', unsafe_allow_html=True)
+        fd_col1, fd_col2 = st.columns(2)
+        with fd_col1:
+            form_indoor_outdoor = st.radio("Setting", ["Indoor", "Outdoor", "Both"], horizontal=True)
+        with fd_col2:
+            form_kitchen = st.checkbox("Venue has kitchen facilities", value=True)
+
+        # Section E: Additional
+        st.markdown('<p style="color:#C9A962; font-weight:600; font-size:0.85rem; margin-top:1rem; margin-bottom:0.3rem;">ADDITIONAL DETAILS</p>', unsafe_allow_html=True)
+        fe_col1, fe_col2 = st.columns(2)
+        with fe_col1:
+            form_name = st.text_input("Your Name / Organization", placeholder="e.g. John Smith / Acme Corp")
+        with fe_col2:
+            form_contact = st.text_input("Contact (email or phone)", placeholder="e.g. john@example.com")
+        form_special = st.text_area("Special Requests", placeholder="e.g. Live cooking station, kids menu for 20 children, specific dessert theme...", height=80)
+
+        # Submit
+        submitted = st.form_submit_button("Plan This Event", type="primary", disabled=st.session_state["running"], use_container_width=True)
+
+        if submitted:
+            errors = []
+            if not form_event_type:
+                errors.append("Event type is required")
+            if form_event_type == "Other" and not form_event_type_custom.strip():
+                errors.append("Please specify your event type")
+            if not form_guest_count or form_guest_count < 1:
+                errors.append("Guest count is required")
+            if not form_date:
+                errors.append("Event date is required")
+            if not form_venue or not form_venue.strip():
+                errors.append("Venue / location is required")
+            if not form_budget_max or form_budget_max <= 0:
+                errors.append("Maximum budget is required")
+            if form_budget_min and form_budget_max and form_budget_min > form_budget_max:
+                errors.append("Minimum budget cannot exceed maximum budget")
+
+            if errors:
+                for e in errors:
+                    st.error(e)
+            else:
+                budget_max = float(form_budget_max)
+                budget_min = float(form_budget_min) if form_budget_min else None
+
+                customer = CustomerData(
+                    name=form_name if form_name else None,
+                    contact=form_contact if form_contact else None,
+                    event_type=form_event_type_custom.strip().lower().replace(" ", "_") if form_event_type == "Other" and form_event_type_custom.strip() else EVENT_TYPE_MAP.get(form_event_type),
+                    event_date=form_date.isoformat(),
+                    event_time=form_time.strftime("%H:%M"),
+                    guest_count=form_guest_count,
+                    venue=form_venue.strip(),
+                    dietary_requirements=[d.lower() for d in form_dietary],
+                    budget_usd=budget_max,
+                    budget_min_usd=budget_min,
+                    budget_max_usd=budget_max,
+                    cuisine_preferences=[c.lower() for c in form_cuisines],
+                    service_style=SERVICE_STYLE_MAP.get(form_service_style) if form_service_style else None,
+                    meal_courses=[c.lower() for c in form_courses],
+                    menu_variety=form_variety.split(" ")[0].lower(),
+                    beverage_options=[b.lower() for b in form_beverages],
+                    alcohol_service=any(b in ["Wine", "Beer", "Full Bar"] for b in form_beverages),
+                    indoor_outdoor=form_indoor_outdoor.lower() if form_indoor_outdoor else None,
+                    venue_kitchen_available=form_kitchen,
+                    special_requests=form_special if form_special else None,
+                    input_mode="form",
+                )
+
+                st.session_state["_action"] = "plan_form"
+                st.session_state["_action_customer"] = customer
+
+# --- Validation feedback (free-text mode only) ---
+if free_text_mode:
+    if st.session_state["validation_errors"]:
+        st.markdown(f"""
+        <div style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3);
+                    border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 0.8rem;">
+            <div style="font-family: Inter, sans-serif; font-weight: 600; font-size: 0.85rem;
+                        color: #DC2626; margin-bottom: 0.5rem;">Missing Required Information</div>
+            <div style="font-family: Inter, sans-serif; font-size: 0.82rem; color: #D1D5DB;">
+                {"".join(f'<div style="padding: 2px 0;">&#8226; {f}</div>' for f in st.session_state["validation_errors"])}
+            </div>
+            <div style="font-family: Inter, sans-serif; font-size: 0.75rem; color: #6B7280; margin-top: 0.5rem;">
+                Please update your request above and try again.
+            </div>
         </div>
-    </a>
-    <a class="qf-card" href="?qf_demo=corporate">
-        <div class="qf-icon">🏢</div>
-        <div>
-            <div class="qf-title">Corporate Lunch</div>
-            <div class="qf-detail">50 guests · Raffles Place · Thu 12 PM</div>
-            <div class="qf-budget">$2,000</div>
-        </div>
-    </a>
-    <a class="qf-card" href="?qf_demo=gala">
-        <div class="qf-icon">🍸</div>
-        <div>
-            <div class="qf-title">Gala Cocktail Reception</div>
-            <div class="qf-detail">150 guests · Fullerton Hotel · Fri 8 PM</div>
-            <div class="qf-budget">$12,000</div>
-        </div>
-    </a>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
-# --- Validation feedback ---
-if st.session_state["validation_errors"]:
-    st.markdown(f"""
-    <div style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3);
-                border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 0.8rem;">
-        <div style="font-family: Inter, sans-serif; font-weight: 600; font-size: 0.85rem;
-                    color: #DC2626; margin-bottom: 0.5rem;">Missing Required Information</div>
-        <div style="font-family: Inter, sans-serif; font-size: 0.82rem; color: #D1D5DB;">
-            {"".join(f'<div style="padding: 2px 0;">&#8226; {f}</div>' for f in st.session_state["validation_errors"])}
+    if st.session_state["validation_warnings"]:
+        st.markdown(f"""
+        <div style="background: rgba(234, 179, 8, 0.08); border: 1px solid rgba(234, 179, 8, 0.25);
+                    border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 0.8rem;">
+            <div style="font-family: Inter, sans-serif; font-weight: 600; font-size: 0.85rem;
+                        color: #EAB308; margin-bottom: 0.5rem;">Recommended (for better results)</div>
+            <div style="font-family: Inter, sans-serif; font-size: 0.82rem; color: #D1D5DB;">
+                {"".join(f'<div style="padding: 2px 0;">&#8226; {f}</div>' for f in st.session_state["validation_warnings"])}
+            </div>
         </div>
-        <div style="font-family: Inter, sans-serif; font-size: 0.75rem; color: #6B7280; margin-top: 0.5rem;">
-            Please update your request above and try again.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
-if st.session_state["validation_warnings"]:
-    st.markdown(f"""
-    <div style="background: rgba(234, 179, 8, 0.08); border: 1px solid rgba(234, 179, 8, 0.25);
-                border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 0.8rem;">
-        <div style="font-family: Inter, sans-serif; font-weight: 600; font-size: 0.85rem;
-                    color: #EAB308; margin-bottom: 0.5rem;">Recommended (for better results)</div>
-        <div style="font-family: Inter, sans-serif; font-size: 0.82rem; color: #D1D5DB;">
-            {"".join(f'<div style="padding: 2px 0;">&#8226; {f}</div>' for f in st.session_state["validation_warnings"])}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    # --- Action buttons (free-text mode) ---
+    can_proceed = st.session_state.get("intake_state") is not None and not st.session_state["validation_errors"]
+    btn_cols = st.columns([1, 1] if can_proceed else [1])
 
-# --- Action buttons ---
-can_proceed = st.session_state.get("intake_state") is not None and not st.session_state["validation_errors"]
-btn_cols = st.columns([1, 1] if can_proceed else [1])
+    with btn_cols[0]:
+        if st.button("Plan This Event", type="primary", disabled=st.session_state["running"], use_container_width=True):
+            if user_input and user_input.strip():
+                st.session_state["_action"] = "plan"
+                st.session_state["_action_input"] = user_input
 
-with btn_cols[0]:
-    if st.button("Plan This Event", type="primary", disabled=st.session_state["running"], use_container_width=True):
-        if user_input and user_input.strip():
-            st.session_state["_action"] = "plan"
-            st.session_state["_action_input"] = user_input
-
-if can_proceed:
-    with btn_cols[1]:
-        if st.button("Continue Anyway", type="secondary", disabled=st.session_state["running"], use_container_width=True):
-            st.session_state["_action"] = "continue"
+    if can_proceed:
+        with btn_cols[1]:
+            if st.button("Continue Anyway", type="secondary", disabled=st.session_state["running"], use_container_width=True):
+                st.session_state["_action"] = "continue"
 
 # === Placeholders (progress bar + results, full-width below input) ===
 progress_placeholder = st.empty()
@@ -1159,6 +1197,35 @@ if action == "plan":
     except Exception as e:
         st.error(f"Pipeline error: {e}")
         st.session_state["running"] = False
+
+elif action == "plan_form":
+    customer = st.session_state.pop("_action_customer", None)
+    if customer:
+        st.session_state["running"] = True
+        st.session_state["state"] = None
+        st.session_state["intake_state"] = None
+        st.session_state["validation_errors"] = None
+        st.session_state["validation_warnings"] = None
+
+        form_state = EventState()
+        form_state.customer = customer
+        form_state.status = "in_progress"
+        form_state.log("IntakeAgent", "form_submission", f"{customer.guest_count} guests, {customer.event_type}", "success")
+
+        def on_pipeline_update(s: EventState):
+            render_progress_bar(s, progress_placeholder, running=True)
+            render_results_panel(s, results_placeholder)
+
+        try:
+            loop = asyncio.new_event_loop()
+            state = loop.run_until_complete(run_pipeline_from_state(form_state, log_callback=on_pipeline_update))
+            loop.close()
+            st.session_state["state"] = state
+        except Exception as e:
+            st.error(f"Pipeline error: {e}")
+        finally:
+            st.session_state["running"] = False
+            st.rerun()
 
 elif action == "continue":
     st.session_state["running"] = True

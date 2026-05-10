@@ -14,8 +14,19 @@ class CustomerData(BaseModel):
     venue: Optional[str] = None
     dietary_requirements: List[str] = []
     budget_usd: Optional[float] = None
+    budget_min_usd: Optional[float] = None
+    budget_max_usd: Optional[float] = None
+    cuisine_preferences: List[str] = []
+    service_style: Optional[str] = None
+    meal_courses: List[str] = []
+    beverage_options: List[str] = []
+    alcohol_service: bool = False
+    menu_variety: Optional[str] = None  # "minimal", "moderate", "extensive"
+    indoor_outdoor: Optional[str] = None
+    venue_kitchen_available: bool = True
     special_requests: Optional[str] = None
     raw_input: Optional[str] = None
+    input_mode: Optional[str] = None
 
 
 class MenuItem(BaseModel):
