@@ -104,6 +104,25 @@ class PricingData(BaseModel):
     notes: str = ""
 
 
+class LogisticsTask(BaseModel):
+    task: str
+    assigned_to: str
+    start_time: str
+    end_time: str
+    duration_hours: float
+    dependencies: List[str] = []
+    notes: str = ""
+
+
+class LogisticsData(BaseModel):
+    planned_at: Optional[str] = None
+    preparation_timeline: List[LogisticsTask] = []
+    delivery_schedule: List[Dict[str, Any]] = []
+    resource_allocation: Dict[str, Any] = {}
+    total_prep_hours: float = 0.0
+    notes: str = ""
+
+
 class Risk(BaseModel):
     risk_id: str
     severity: str
@@ -144,6 +163,7 @@ class EventState(BaseModel):
     menu: MenuData = MenuData()
     inventory: InventoryData = InventoryData()
     pricing: PricingData = PricingData()
+    logistics: LogisticsData = LogisticsData()
     monitoring: MonitoringData = MonitoringData()
     agent_log: List[AgentLogEntry] = []
 

@@ -40,6 +40,17 @@ def init_db():
                 full_state TEXT NOT NULL
             )
         """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS kitchen_stock (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ingredient TEXT NOT NULL,
+                quantity REAL NOT NULL,
+                unit TEXT NOT NULL DEFAULT 'kg',
+                cost_per_unit REAL NOT NULL DEFAULT 0.0,
+                region TEXT NOT NULL DEFAULT 'singapore',
+                updated_at TEXT DEFAULT (datetime('now'))
+            )
+        """)
 
 
 def save_restaurant_profile(profile: RestaurantProfile):
@@ -125,4 +136,51 @@ def get_history_summary() -> dict:
     return dict(row)
 
 
+def save_kitchen_item(ingredient: str, quantity: float, unit: str, cost_per_unit: float, region: str):
+    with _conn() as conn:
+        conn.execute(
+            "INSERT INTO kitchen_stock (ingredient, quantity, unit, cost_per_unit, region, updated_at) "
+            "VALUES (?, ?, ?, ?, ?, datetime('now'))",
+            (ingredient, quantity, unit, cost_per_unit, region),
+        )
+
+
+def get_kitchen_stock(region: str | None = None) -> list[dict]:
+    with _conn() as conn:
+        if region:
+            rows = conn.execute(
+                "SELECT * FROM kitchen_stock WHERE region=? ORDER BY ingredient", (region,)
+            ).fetchall()
+        else:
+            rows = conn.execute("SELECT * FROM kitchen_stock ORDER BY ingredient").fetchall()
+    return [dict(r) for r in rows]
+
+
+def delete_kitchen_item(item_id: int):
+    with _conn() as conn:
+        conn.execute("DELETE FROM kitchen_stock WHERE id=?", (item_id,))
+
+
+def seed_kitchen_stock():
+    with _conn() as conn:
+        count = conn.execute("SELECT COUNT(*) FROM kitchen_stock").fetchone()[0]
+        if count > 0:
+            return
+        defaults = [
+            ("jasmine_rice", 120.0, "kg", 2.50, "singapore"),
+            ("chicken", 80.0, "kg", 8.00, "singapore"),
+            ("onion", 60.0, "kg", 2.00, "singapore"),
+            ("garlic", 15.0, "kg", 5.00, "singapore"),
+            ("coconut_milk", 40.0, "kg", 3.50, "singapore"),
+            ("chili", 10.0, "kg", 7.00, "singapore"),
+            ("soy_sauce", 20.0, "kg", 4.00, "singapore"),
+            ("flour", 50.0, "kg", 1.80, "singapore"),
+        ]
+        conn.executemany(
+            "INSERT INTO kitchen_stock (ingredient, quantity, unit, cost_per_unit, region) VALUES (?, ?, ?, ?, ?)",
+            defaults,
+        )
+
+
 init_db()
+seed_kitchen_stock()

@@ -15,6 +15,7 @@ AGENT_MODELS = {
     "menu": "meta/llama-3.1-70b-instruct",
     "inventory": "meta/llama-3.1-8b-instruct",
     "pricing": "meta/llama-3.1-8b-instruct",
+    "logistics": "meta/llama-3.1-8b-instruct",
     "monitoring": "meta/llama-3.1-70b-instruct",
 }
 

@@ -67,6 +67,10 @@ Calculate the complete cost breakdown, check budget feasibility, and suggest pri
 
         guest_count = state.customer.guest_count or 1
         ingredient_cost = state.inventory.total_ingredient_cost_usd or 0.0
+        if ingredient_cost < 1.0 and state.menu.items:
+            ingredient_cost = round(sum(
+                i.cost_per_portion_usd * i.portions_required for i in state.menu.items
+            ), 2)
         labor_cost = staffing["total_labor_cost_usd"]
         logistics_cost = round(cost_profile["logistics_cost_per_km_usd"] * cost_profile["default_distance_km"], 2)
         packaging_cost = round(cost_profile["packaging_cost_per_guest_usd"] * guest_count, 2)

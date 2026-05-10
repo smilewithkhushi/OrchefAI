@@ -8,6 +8,7 @@ from agents.intake_agent import run_intake
 from agents.menu_agent import run_menu
 from agents.inventory_agent import run_inventory
 from agents.pricing_agent import run_pricing
+from agents.logistics_agent import run_logistics
 from agents.monitoring_agent import run_monitoring
 
 MAX_REPLAN_ATTEMPTS = 1
@@ -94,8 +95,14 @@ async def run_pipeline_from_state(
     _notify(log_callback, state)
     save_event_state(state)
 
-    # Step 5: Monitoring
-    print("\n[OrchefAI] Step 5: Monitoring Agent", flush=True)
+    # Step 5: Logistics
+    print("\n[OrchefAI] Step 5: Logistics Agent", flush=True)
+    state = await run_logistics(state)
+    _notify(log_callback, state)
+    save_event_state(state)
+
+    # Step 6: Monitoring
+    print("\n[OrchefAI] Step 6: Monitoring Agent", flush=True)
     state = await run_monitoring(state)
     _notify(log_callback, state)
     save_event_state(state)
@@ -127,6 +134,10 @@ async def run_pipeline_from_state(
         save_event_state(state)
 
         state = await run_pricing(state)
+        _notify(log_callback, state)
+        save_event_state(state)
+
+        state = await run_logistics(state)
         _notify(log_callback, state)
         save_event_state(state)
 

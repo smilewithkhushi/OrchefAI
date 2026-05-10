@@ -8,8 +8,8 @@ from tools.pdf_export import generate_pdf
 from agents.orchestrator import run_pipeline, run_intake_only, run_pipeline_from_state, validate_intake
 from models.event_state import (
     EventState, CustomerData, MenuData, MenuItem, InventoryData,
-    ProcurementItem, Shortage, PricingData, CostBreakdown, MonitoringData,
-    Risk, AgentLogEntry,
+    ProcurementItem, Shortage, PricingData, CostBreakdown, LogisticsData,
+    LogisticsTask, MonitoringData, Risk, AgentLogEntry,
 )
 
 st.set_page_config(page_title="OrchefAI", layout="wide", page_icon="🍽️")
@@ -334,7 +334,7 @@ QF_TEMPLATES = {
 def _demo_log(agents):
     return [AgentLogEntry(timestamp="2026-05-08T12:00:00", agent=a, action="completed", output_summary="OK", status="success") for a in agents]
 
-ALL_AGENTS_DONE = _demo_log(["IntakeAgent", "MenuAgent", "InventoryAgent", "PricingAgent", "MonitoringAgent"])
+ALL_AGENTS_DONE = _demo_log(["IntakeAgent", "MenuAgent", "InventoryAgent", "PricingAgent", "LogisticsAgent", "MonitoringAgent"])
 
 DEMO_STATES = {
     "wedding": EventState(
@@ -574,7 +574,8 @@ PIPELINE_STEPS = [
     ("2", "Menu", "MenuAgent"),
     ("3", "Inventory", "InventoryAgent"),
     ("4", "Pricing", "PricingAgent"),
-    ("5", "Monitoring", "MonitoringAgent"),
+    ("5", "Logistics", "LogisticsAgent"),
+    ("6", "Monitoring", "MonitoringAgent"),
 ]
 
 
@@ -992,7 +993,64 @@ def render_results_panel(state, placeholder):
             """)
 
         # ==============================================================
-        # SECTION 5: RISK ASSESSMENT
+        # SECTION 5: LOGISTICS & TIMELINE
+        # ==============================================================
+        if state.logistics.preparation_timeline:
+            _html(f"""
+            <div class="results-section">
+                <div class="section-title"><span class="section-num">5</span>Logistics & Timeline</div>
+                <div class="section-subtitle">{len(state.logistics.preparation_timeline)} tasks &middot;
+                    {state.logistics.total_prep_hours:.1f}h total prep &middot;
+                    {len(state.logistics.delivery_schedule)} deliveries</div>
+            </div>
+            """)
+
+            timeline_html = ""
+            for t in state.logistics.preparation_timeline:
+                assigned_colors = {"kitchen_staff": "#F59E0B", "service_staff": "#3B82F6", "logistics": "#8B5CF6", "vendor": "#10B981"}
+                a_color = assigned_colors.get(t.assigned_to, "#6B7280")
+                timeline_html += f"""<tr>
+                    <td style="font-weight:500; color:#FAFAFA;">{t.task}</td>
+                    <td style="white-space:nowrap;">{t.start_time} – {t.end_time}</td>
+                    <td><span style="color:{a_color}; font-size:0.75rem; font-weight:600;
+                               padding:2px 8px; background:{a_color}15; border-radius:12px;">
+                        {t.assigned_to.replace('_', ' ').title()}</span></td>
+                    <td style="text-align:center;">{t.duration_hours:.1f}h</td>
+                </tr>"""
+
+            _html(f"""
+            <table class="menu-table">
+                <thead><tr>
+                    <th>Task</th><th>Time</th><th>Assigned To</th><th style="text-align:center;">Duration</th>
+                </tr></thead>
+                <tbody>{timeline_html}</tbody>
+            </table>
+            """)
+
+            if state.logistics.delivery_schedule:
+                del_html = ""
+                for d in state.logistics.delivery_schedule:
+                    v_type = d.get("vehicle_type", "van")
+                    v_color = "#3B82F6" if v_type == "cold_van" else "#F59E0B"
+                    del_html += f"""<tr>
+                        <td style="font-weight:500; color:#FAFAFA;">{d.get('item_type', '')}</td>
+                        <td>{d.get('departure_time', '')}</td>
+                        <td>{d.get('arrival_time', '')}</td>
+                        <td><span style="color:{v_color}; font-size:0.75rem; font-weight:600;">
+                            {v_type.replace('_', ' ').title()}</span></td>
+                    </tr>"""
+                _html(f"""
+                <div style="font-family:Inter,sans-serif; font-weight:600; font-size:0.78rem;
+                            color:#C9A962; margin:14px 0 8px 0; text-transform:uppercase;
+                            letter-spacing:0.8px;">Delivery Schedule</div>
+                <table class="menu-table">
+                    <thead><tr><th>Items</th><th>Depart</th><th>Arrive</th><th>Vehicle</th></tr></thead>
+                    <tbody>{del_html}</tbody>
+                </table>
+                """)
+
+        # ==============================================================
+        # SECTION 6: RISK ASSESSMENT
         # ==============================================================
         has_risks = state.monitoring.risks
         has_shortages = state.inventory.shortages
@@ -1003,7 +1061,7 @@ def render_results_panel(state, placeholder):
             _html(f"""
             <div class="results-section">
                 <div class="section-title">
-                    <span class="section-num">5</span>Risk Assessment
+                    <span class="section-num">6</span>Risk Assessment
                     <span style="font-family:Inter,sans-serif; font-size:0.7rem; font-weight:700;
                                  color:{rl_color}; margin-left:12px; padding:3px 10px;
                                  background:{rl_color}15; border:1px solid {rl_color}30;

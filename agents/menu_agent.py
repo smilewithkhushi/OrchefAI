@@ -15,7 +15,8 @@ async def run_menu(state: EventState) -> EventState:
         guest_count = state.customer.guest_count or 100
         budget = state.customer.budget_usd or 5000
 
-        query = f"{event_type} {' '.join(dietary)} Singapore catering"
+        venue = state.customer.venue or ""
+        query = f"{event_type} {' '.join(dietary)} {venue} catering".strip()
         rag_results = search_menus(query, dietary_tags=dietary if dietary else None, top=15)
 
         rag_context = json.dumps(rag_results, indent=2, default=str)
