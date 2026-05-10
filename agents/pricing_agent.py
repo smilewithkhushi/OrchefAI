@@ -89,7 +89,7 @@ def _validate_pricing_math(state: EventState):
     budget = state.customer.budget_usd or 0
     suggested = state.pricing.suggested_price_usd
 
-    if suggested < total_cost:
+    if suggested <= total_cost:
         suggested = round(total_cost / 0.80, 2)
         state.pricing.suggested_price_usd = suggested
 

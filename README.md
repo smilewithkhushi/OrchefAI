@@ -55,24 +55,31 @@ A team of **5 specialized AI agents** collaborate in real-time to convert a cust
 ### Prerequisites
 - Python 3.11+
 - Azure account (free tier sufficient for AI Search + Cosmos DB)
-- NVIDIA NIM API key (free tier available at build.nvidia.com)
 
 ### Setup
 
 ```bash
-# 1. Clone and install
+# 1. Clone the repo
 git clone https://github.com/smilewithkhushi/orchefai
 cd orchefai
+
+# 2. Create and activate a virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# 2. Configure environment
+# 4. Set up environment variables
 cp .env.example .env
-# Edit .env with your API keys
+# Then edit .env with your actual keys:
+#   - AZURE_SEARCH_ENDPOINT / AZURE_SEARCH_API_KEY
+#   - COSMOS_ENDPOINT / COSMOS_KEY
 
-# 3. Index knowledge base into Azure AI Search
+# 5. Index the knowledge base into Azure AI Search
 python setup/index_knowledge_base.py
 
-# 4. Run the app
+# 6. Run the app
 streamlit run app.py
 ```
 

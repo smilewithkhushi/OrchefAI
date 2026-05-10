@@ -35,7 +35,7 @@ Extract the following fields:
 - guest_count: integer
 - venue: string (full location including city/country if mentioned)
 - dietary_requirements: array from [halal, vegetarian, vegan, gluten-free, jain, nut-free, diabetic-friendly, keto]
-- budget_usd: float in US dollars. Convert from local currencies: SGD x 0.75, INR x 0.012, GBP x 1.27, EUR x 1.09, AED x 0.27.
+- budget_usd: float in US dollars. Convert from local currencies: SGD x 0.75, INR x 0.012, GBP x 1.27, EUR x 1.09, AED x 0.27. NOTE: "1 lakh" = 100,000 and "1 crore" = 10,000,000 (Indian number system).
 - special_requests: string (any additional requirements)
 
 RULES:

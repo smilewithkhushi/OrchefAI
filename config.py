@@ -94,7 +94,7 @@ COST_PROFILES = {
 
 REGION_KEYWORDS = {
     "singapore": ["singapore", "sg", "marina bay", "raffles", "orchard", "changi"],
-    "india": ["india", "mumbai", "delhi", "bangalore", "bengaluru", "hyderabad", "chennai", "kolkata", "pune", "jaipur"],
+    "india": ["india", "mumbai", "delhi", "bangalore", "bengaluru", "hyderabad", "chennai", "kolkata", "pune", "jaipur", "noida", "gurgaon", "gurugram", "lucknow", "ahmedabad", "goa", "cochin", "kochi", "chandigarh", "indore"],
     "usa": ["usa", "us", "united states", "new york", "los angeles", "chicago", "san francisco", "miami", "texas", "california", "manhattan"],
     "uk": ["uk", "united kingdom", "london", "manchester", "birmingham", "edinburgh", "england", "scotland"],
     "uae": ["uae", "dubai", "abu dhabi", "sharjah", "doha", "qatar", "riyadh", "saudi", "middle east"],

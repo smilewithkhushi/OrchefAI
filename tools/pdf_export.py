@@ -29,7 +29,7 @@ class CateringPDF(FPDF):
         self.set_y(-15)
         self.set_font("Helvetica", "I", 7)
         self.set_text_color(*GRAY)
-        self.cell(0, 10, f"OrchefAI — Page {self.page_no()}/{{nb}}", align="C")
+        self.cell(0, 10, f"OrchefAI - Page {self.page_no()}/{{nb}}", align="C")
 
     def section_title(self, title: str):
         self.ln(4)
@@ -202,7 +202,7 @@ def generate_pdf(state: EventState) -> bytes:
             for s in state.inventory.shortages:
                 pdf.set_font("Helvetica", "", 8)
                 pdf.set_text_color(*WHITE)
-                sub = f" — Use {s.suggested_substitute} instead" if s.suggested_substitute else ""
+                sub = f" - Use {s.suggested_substitute} instead" if s.suggested_substitute else ""
                 pdf.cell(0, 5,
                          f"  {s.ingredient}: need {s.required:.1f}kg, have {s.available:.1f}kg (short {s.deficit:.1f}kg){sub}",
                          new_x="LMARGIN", new_y="NEXT")
