@@ -13,11 +13,24 @@ async def run_pricing(state: EventState) -> EventState:
         inventory_data = state.inventory.model_dump()
         menu_data = {"items": [i.model_dump() for i in state.menu.items]}
 
+        duration_hours = None
+        if state.customer.event_time and state.customer.event_end_time:
+            try:
+                st_h, st_m = map(int, state.customer.event_time.split(":"))
+                en_h, en_m = map(int, state.customer.event_end_time.split(":"))
+                diff = (en_h * 60 + en_m) - (st_h * 60 + st_m)
+                if diff <= 0:
+                    diff += 24 * 60
+                duration_hours = round(diff / 60, 1)
+            except (ValueError, AttributeError):
+                pass
+
         staffing = calculate_staffing(
             guest_count=state.customer.guest_count or 1,
             service_style=state.customer.service_style,
             event_type=state.customer.event_type,
             venue=state.customer.venue,
+            event_duration_hours=duration_hours,
         )
 
         user_msg = f"""CUSTOMER DATA:
@@ -108,11 +121,20 @@ def _validate_pricing_math(state: EventState):
     total_cost = cb.total_cost_usd
     guest_count = state.customer.guest_count or 1
     budget = state.customer.budget_usd or 0
-    suggested = state.pricing.suggested_price_usd
 
-    if suggested <= total_cost:
-        suggested = round(total_cost / 0.80, 2)
-        state.pricing.suggested_price_usd = suggested
+    # Target 30% profit margin (configurable via restaurant profile in future)
+    target_margin = 0.30
+    ideal_price = round(total_cost / (1 - target_margin), 2)
+
+    # Never quote above the customer's budget — if budget covers cost + some margin, fit within it
+    if budget > 0 and budget >= total_cost:
+        suggested = min(ideal_price, budget)
+    elif ideal_price > 0:
+        suggested = ideal_price
+    else:
+        suggested = state.pricing.suggested_price_usd
+
+    state.pricing.suggested_price_usd = suggested
 
     if suggested > 0:
         state.pricing.margin_percentage = round(
@@ -122,8 +144,9 @@ def _validate_pricing_math(state: EventState):
 
     state.pricing.per_head_cost_usd = round(total_cost / guest_count, 2)
     state.pricing.suggested_price_per_head_usd = round(suggested / guest_count, 2)
-    state.pricing.budget_feasible = budget >= suggested
-    state.pricing.budget_shortfall_usd = round(max(0, suggested - budget), 2)
+    # Feasible = budget covers at minimum the total cost
+    state.pricing.budget_feasible = budget >= total_cost
+    state.pricing.budget_shortfall_usd = round(max(0, total_cost - budget), 2)
 
 
 def _parse_json(raw: str) -> dict | None:

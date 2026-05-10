@@ -31,7 +31,8 @@ INTAKE_PROMPT = """You are the OrchefAI Intake Agent. Your only job is to conver
 Extract the following fields:
 - event_type: one of [wedding, corporate_lunch, birthday_party, cocktail_reception, conference, gala_dinner]
 - event_date: ISO 8601 date format
-- event_time: HH:MM 24-hour format
+- event_time: HH:MM 24-hour format (start time)
+- event_end_time: HH:MM 24-hour format (end time, if mentioned)
 - guest_count: integer
 - venue: string (full location including city/country if mentioned)
 - dietary_requirements: array from [non-veg, vegetarian, vegan, halal, seafood, jain, gluten-free, nut-free, dairy-free, egg-free, diabetic-friendly, keto, pescatarian, kosher]
@@ -51,6 +52,7 @@ OUTPUT FORMAT: Return ONLY valid JSON. No preamble. No explanation. No markdown 
   "event_type": string,
   "event_date": string or null,
   "event_time": string or null,
+  "event_end_time": string or null,
   "guest_count": integer or null,
   "venue": string or null,
   "dietary_requirements": array,
@@ -194,9 +196,10 @@ REGIONAL COST PROFILE ({region_label}):
 
 PRICING RULES:
 - Food cost must be 28-35% of total revenue (industry standard)
-- Minimum margin: {margin_pct}% net profit
-- If customer budget covers costs + {margin_pct}% margin = FEASIBLE
-- If customer budget < costs = BUDGET_INSUFFICIENT (flag exact shortfall)
+- Target margin: {margin_pct}% net profit
+- IMPORTANT: The suggested_price_usd must NEVER exceed the customer's budget. If budget allows costs + {margin_pct}% margin, use the full margin. If budget is tight, reduce margin to fit within budget.
+- If customer budget >= total costs = FEASIBLE (adjust margin to fit within budget)
+- If customer budget < total costs = BUDGET_INSUFFICIENT (flag exact shortfall = total_cost - budget)
 
 OUTPUT FORMAT: Return ONLY valid JSON. No preamble. No explanation. No markdown code blocks.
 {{

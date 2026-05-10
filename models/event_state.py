@@ -10,6 +10,7 @@ class CustomerData(BaseModel):
     event_type: Optional[str] = None
     event_date: Optional[str] = None
     event_time: Optional[str] = None
+    event_end_time: Optional[str] = None
     guest_count: Optional[int] = None
     venue: Optional[str] = None
     dietary_requirements: List[str] = []

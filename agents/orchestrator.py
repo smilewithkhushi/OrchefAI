@@ -1,5 +1,4 @@
 import asyncio
-import copy
 import time
 from typing import Callable, Optional
 from models.event_state import EventState
@@ -77,23 +76,15 @@ async def run_pipeline_from_state(
     print("[OrchefAI] Pipeline continuing after validation", flush=True)
     print(f"{'='*50}", flush=True)
 
-    # Step 2+3: Menu + Inventory in PARALLEL
-    print("\n[OrchefAI] Step 2+3: Menu Agent ║ Inventory Agent (parallel)", flush=True)
-    log_before = len(state.agent_log)
-    menu_state = copy.deepcopy(state)
-    inventory_state = copy.deepcopy(state)
+    # Step 2: Menu
+    print("\n[OrchefAI] Step 2: Menu Agent", flush=True)
+    state = await run_menu(state)
+    _notify(log_callback, state)
+    save_event_state(state)
 
-    menu_state, inventory_state = await asyncio.gather(
-        run_menu(menu_state),
-        run_inventory(inventory_state),
-    )
-
-    state.menu = menu_state.menu
-    state.inventory = inventory_state.inventory
-    for entry in menu_state.agent_log[log_before:]:
-        state.agent_log.append(entry)
-    for entry in inventory_state.agent_log[log_before:]:
-        state.agent_log.append(entry)
+    # Step 3: Inventory (needs menu items for ingredient calculation)
+    print("\n[OrchefAI] Step 3: Inventory Agent", flush=True)
+    state = await run_inventory(state)
     _notify(log_callback, state)
     save_event_state(state)
 

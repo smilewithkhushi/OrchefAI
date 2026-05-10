@@ -18,20 +18,20 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
 
-.block-container { padding-top: 2rem; max-width: 1200px; }
+.block-container { padding-top: 1rem; max-width: 1200px; }
 h1, h2, h3 { font-family: 'Playfair Display', serif !important; }
 
 /* Hero */
-.hero { text-align: center; padding: 1.5rem 0 1rem 0; }
+.hero { text-align: center; padding: 0.8rem 0 0.5rem 0; }
 .hero h1 {
-    font-size: 2.8rem;
+    font-size: 2.2rem;
     background: linear-gradient(135deg, #C9A962 0%, #E8D5A3 50%, #C9A962 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.1rem;
     letter-spacing: 1px;
 }
-.hero p { color: #9CA3AF; font-size: 1.05rem; font-family: 'Inter', sans-serif; letter-spacing: 0.5px; }
+.hero p { color: #6B7280; font-size: 0.88rem; font-family: 'Inter', sans-serif; letter-spacing: 0.5px; }
 
 /* Cards */
 .card {
@@ -137,76 +137,99 @@ h1, h2, h3 { font-family: 'Playfair Display', serif !important; }
 .stepper-label.active { color: #60A5FA; }
 .stepper-label.waiting { color: #4B5563; }
 
+/* ── Results panel ── */
+.results-section { margin-top: 2rem; margin-bottom: 1.5rem; }
+.section-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(201, 169, 98, 0.12); color: #C9A962;
+    font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700;
+    margin-right: 10px; flex-shrink: 0;
+}
+.section-title {
+    font-family: 'Playfair Display', serif; font-size: 1.25rem; color: #C9A962;
+    display: flex; align-items: center;
+}
+.section-subtitle {
+    font-family: 'Inter', sans-serif; font-size: 0.75rem; color: #6B7280;
+    margin-top: 2px; margin-left: 36px; margin-bottom: 1rem;
+}
+
 /* Risk badges */
 .risk-critical, .risk-high {
-    background: rgba(220, 38, 38, 0.15);
-    border: 1px solid rgba(220, 38, 38, 0.3);
-    border-radius: 8px;
-    padding: 0.7rem 1rem;
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    border-radius: 10px;
+    padding: 0.8rem 1.2rem;
     margin-bottom: 0.5rem;
 }
 .risk-medium {
-    background: rgba(234, 179, 8, 0.1);
-    border: 1px solid rgba(234, 179, 8, 0.25);
-    border-radius: 8px;
-    padding: 0.7rem 1rem;
+    background: rgba(234, 179, 8, 0.08);
+    border: 1px solid rgba(234, 179, 8, 0.2);
+    border-radius: 10px;
+    padding: 0.8rem 1.2rem;
     margin-bottom: 0.5rem;
 }
 .risk-low {
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.25);
-    border-radius: 8px;
-    padding: 0.7rem 1rem;
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: 10px;
+    padding: 0.8rem 1.2rem;
     margin-bottom: 0.5rem;
 }
-.risk-label { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; }
-.risk-desc { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #D1D5DB; margin-top: 4px; }
-.risk-action { font-family: 'Inter', sans-serif; font-size: 0.78rem; color: #6B7280; margin-top: 4px; }
+.risk-label { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.78rem; letter-spacing: 0.5px; }
+.risk-desc { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #D1D5DB; margin-top: 4px; line-height: 1.5; }
+.risk-action { font-family: 'Inter', sans-serif; font-size: 0.78rem; color: #9CA3AF; margin-top: 6px; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 6px; }
 
 /* Shortage row */
 .shortage-row {
     background: #1C1714;
     border: 1px solid #2A231E;
-    border-radius: 8px;
-    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    padding: 0.8rem 1.2rem;
     margin-bottom: 0.5rem;
     font-family: 'Inter', sans-serif;
 }
 
-/* Menu table */
+/* Menu / procurement table */
 .menu-table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     font-family: 'Inter', sans-serif;
     font-size: 0.85rem;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #2A231E;
 }
 .menu-table th {
     background: #1C1714;
     color: #C9A962;
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     letter-spacing: 1px;
-    padding: 0.7rem 1rem;
+    padding: 0.8rem 1rem;
     text-align: left;
     border-bottom: 2px solid #2A231E;
 }
 .menu-table td {
-    padding: 0.6rem 1rem;
-    border-bottom: 1px solid #1C1714;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid rgba(42, 35, 30, 0.6);
     color: #D1D5DB;
 }
-.menu-table tr:hover td { background: rgba(201, 169, 98, 0.05); }
+.menu-table tr:nth-child(even) td { background: rgba(28, 23, 20, 0.4); }
+.menu-table tr:hover td { background: rgba(201, 169, 98, 0.06); }
 .dish-name { font-weight: 500; color: #FAFAFA; }
 .tag {
     display: inline-block;
-    background: rgba(201, 169, 98, 0.15);
+    background: rgba(201, 169, 98, 0.12);
     color: #C9A962;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     padding: 2px 8px;
-    border-radius: 4px;
+    border-radius: 20px;
     margin-right: 4px;
+    letter-spacing: 0.3px;
 }
 
 /* Buttons */
@@ -239,6 +262,45 @@ div.stButton > button[kind="secondary"]:hover {
     margin: 1.5rem 0;
 }
 
+/* Loader */
+.loader-container {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    margin: 1.5rem 0;
+    background: linear-gradient(135deg, #1C1714 0%, #0E1117 100%);
+    border: 1px solid #2A231E;
+    border-radius: 16px;
+}
+.loader-dots {
+    display: inline-flex;
+    gap: 6px;
+    margin-bottom: 1rem;
+}
+.loader-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #C9A962;
+    animation: loader-bounce 1.4s ease-in-out infinite;
+}
+.loader-dots span:nth-child(2) { animation-delay: 0.16s; }
+.loader-dots span:nth-child(3) { animation-delay: 0.32s; }
+@keyframes loader-bounce {
+    0%, 80%, 100% { opacity: 0.25; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1.2); }
+}
+.loader-msg {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    color: #FAFAFA;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+.loader-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    color: #6B7280;
+}
+
 /* Hide defaults */
 #MainMenu { visibility: hidden; }
 footer { visibility: hidden; }
@@ -257,7 +319,7 @@ st.markdown("""
 # --- Session state ---
 for key, default in [("state", None), ("running", False), ("agent_log", []),
                       ("intake_state", None), ("validation_errors", None),
-                      ("validation_warnings", None)]:
+                      ("validation_warnings", None), ("is_regeneration", False)]:
     if key not in st.session_state:
         st.session_state[key] = default
 
@@ -547,6 +609,37 @@ def render_progress_bar(state, placeholder, running=False):
         st.markdown(html, unsafe_allow_html=True)
 
 
+# --- Render: loading indicator ---
+LOADER_MESSAGES_NEW = [
+    ("Crafting your catering plan...", "Our AI agents are working together to design the perfect event"),
+    ("Planning the menu for your guests...", "Matching dishes to your dietary requirements and preferences"),
+    ("Sourcing ingredients from suppliers...", "Checking availability and negotiating the best prices"),
+    ("Calculating costs and pricing...", "Ensuring everything fits within your budget"),
+    ("Running final quality checks...", "Almost there — verifying compliance and flagging any risks"),
+]
+LOADER_MESSAGES_REGEN = [
+    ("Heard you — regenerating your plan...", "Incorporating your feedback into a fresh proposal"),
+    ("Reworking the menu with your changes...", "Adjusting dishes based on your preferences"),
+    ("Re-sourcing ingredients...", "Finding the best suppliers for the updated menu"),
+    ("Recalculating the numbers...", "Making sure the new plan fits your budget"),
+    ("Final review on the updated plan...", "Almost done — just a few more checks"),
+]
+
+
+def render_loader(placeholder, is_regen=False, step_index=0):
+    messages = LOADER_MESSAGES_REGEN if is_regen else LOADER_MESSAGES_NEW
+    idx = min(step_index, len(messages) - 1)
+    msg, sub = messages[idx]
+    with placeholder.container():
+        st.markdown(f"""
+        <div class="loader-container">
+            <div class="loader-dots"><span></span><span></span><span></span></div>
+            <div class="loader-msg">{msg}</div>
+            <div class="loader-sub">{sub}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+
 # --- Render: results panel ---
 def _html(content: str):
     st.markdown(textwrap.dedent(content), unsafe_allow_html=True)
@@ -564,52 +657,48 @@ def render_results_panel(state, placeholder):
         return
 
     with placeholder.container():
-        _html('<hr class="section-divider">')
 
-        # --- Header with status ---
+        # ── Hero header: plan title + status badge ──
         status_map = {"complete": ("#22C55E", "APPROVED"), "needs_review": ("#EAB308", "NEEDS REVIEW")}
         status_color, status_label = status_map.get(state.status, ("#60A5FA", state.status.replace("_", " ").upper()))
+
+        event_type = (state.customer.event_type or "N/A").replace("_", " ").title()
+        date_str = state.customer.event_date or "TBD"
+        time_str = state.customer.event_time or ""
+        if state.customer.event_end_time:
+            time_str = f"{time_str} – {state.customer.event_end_time}"
+        venue = state.customer.venue or "Not specified"
+        dietary = ", ".join(d.title() for d in state.customer.dietary_requirements) if state.customer.dietary_requirements else "None specified"
+        guest_count = state.customer.guest_count or 0
+
         _html(f"""
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
-            <span style="font-size:2rem; font-family:'Playfair Display',serif; color:#C9A962;">Catering Plan</span>
-            <span style="background:{status_color}22; color:{status_color}; font-size:0.8rem; font-weight:600;
-                         font-family:Inter,sans-serif; padding:6px 16px; border-radius:20px;
-                         border:1px solid {status_color}44; letter-spacing:0.5px;">
-                {status_label}
-            </span>
+        <div style="margin-top:2rem; margin-bottom:0.8rem; padding:1.5rem 2rem;
+                    background:linear-gradient(135deg, #1C1714 0%, #0E1117 100%);
+                    border:1px solid #2A231E; border-radius:16px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem;">
+                <div style="font-size:1.6rem; font-family:'Playfair Display',serif; color:#FAFAFA; font-weight:700;">
+                    {event_type} &mdash; Catering Plan
+                </div>
+                <span style="background:{status_color}18; color:{status_color}; font-size:0.75rem; font-weight:700;
+                             font-family:Inter,sans-serif; padding:5px 14px; border-radius:20px;
+                             border:1px solid {status_color}33; letter-spacing:0.8px; text-transform:uppercase;">
+                    {status_label}
+                </span>
+            </div>
+            <div style="display:flex; gap:2rem; flex-wrap:wrap; font-family:Inter,sans-serif; font-size:0.82rem; color:#9CA3AF;">
+                <span>{date_str} {time_str}</span>
+                <span>&middot;</span>
+                <span><strong style="color:#FAFAFA;">{guest_count}</strong> guests</span>
+                <span>&middot;</span>
+                <span>{venue}</span>
+                <span>&middot;</span>
+                <span>{dietary}</span>
+            </div>
         </div>
         """)
 
-        # --- Event overview ---
-        if state.customer.guest_count:
-            venue = state.customer.venue or "Not specified"
-            event_type = (state.customer.event_type or "N/A").replace("_", " ").title()
-            date_str = state.customer.event_date or "TBD"
-            time_str = state.customer.event_time or ""
-            dietary = ", ".join(state.customer.dietary_requirements) or "None specified"
-            _html(f"""
-            <div class="card" style="border-left:3px solid #C9A962;">
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; font-family:Inter,sans-serif;">
-                    <div>
-                        <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:1px; color:#6B7280; margin-bottom:4px;">Event</div>
-                        <div style="font-size:1rem; font-weight:600; color:#FAFAFA;">{event_type}</div>
-                        <div style="font-size:0.82rem; color:#9CA3AF; margin-top:2px;">{date_str} {time_str}</div>
-                    </div>
-                    <div>
-                        <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:1px; color:#6B7280; margin-bottom:4px;">Guests &amp; Venue</div>
-                        <div style="font-size:1rem; font-weight:600; color:#FAFAFA;">{state.customer.guest_count} guests</div>
-                        <div style="font-size:0.82rem; color:#9CA3AF; margin-top:2px;">{venue}</div>
-                    </div>
-                    <div>
-                        <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:1px; color:#6B7280; margin-bottom:4px;">Dietary Needs</div>
-                        <div style="font-size:0.9rem; font-weight:500; color:#FAFAFA;">{dietary}</div>
-                    </div>
-                </div>
-            </div>
-            """)
-
         # ==============================================================
-        # SECTION 1: CHARGE THE CUSTOMER (most important for restaurant)
+        # SECTION 1: PRICING — what to charge + budget status
         # ==============================================================
         if state.pricing.cost_breakdown.total_cost_usd > 0:
             budget = state.customer.budget_usd or 0
@@ -621,155 +710,193 @@ def render_results_panel(state, placeholder):
             feasible = state.pricing.budget_feasible
             shortfall = state.pricing.budget_shortfall_usd
 
-            _html('<hr class="section-divider">')
             _html("""
-            <div style="font-family:'Playfair Display',serif; font-size:1.4rem; color:#C9A962; margin-bottom:1rem;">
-                What to Charge the Customer
+            <div class="results-section">
+                <div class="section-title"><span class="section-num">1</span>Pricing &amp; Budget</div>
+                <div class="section-subtitle">What to quote the customer and your profit margins</div>
             </div>
             """)
 
-            # Big price cards
+            # Hero price card (larger) + two supporting cards
             _html(f"""
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
-                <div style="background:linear-gradient(135deg, rgba(201,169,98,0.15), rgba(201,169,98,0.05));
-                            border:1px solid rgba(201,169,98,0.3); border-radius:12px; padding:1.2rem; text-align:center;">
-                    <div style="font-family:Inter,sans-serif; font-size:0.72rem; text-transform:uppercase;
-                                letter-spacing:1px; color:#C9A962; margin-bottom:6px;">Total Price to Charge</div>
-                    <div style="font-family:'Playfair Display',serif; font-size:2.2rem; color:#FAFAFA; font-weight:700;">
+            <div style="display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:0.8rem; margin-bottom:1rem;">
+                <div style="background:linear-gradient(145deg, rgba(201,169,98,0.14), rgba(201,169,98,0.04));
+                            border:1px solid rgba(201,169,98,0.25); border-radius:14px; padding:1.4rem 1.2rem; text-align:center;
+                            position:relative; overflow:hidden;">
+                    <div style="position:absolute; top:0; left:0; right:0; height:3px;
+                                background:linear-gradient(90deg, #C9A962, #E8D5A3, #C9A962);"></div>
+                    <div style="font-family:Inter,sans-serif; font-size:0.7rem; text-transform:uppercase;
+                                letter-spacing:1.2px; color:#C9A962; margin-bottom:8px; font-weight:600;">Quote Price</div>
+                    <div style="font-family:'Playfair Display',serif; font-size:2.5rem; color:#FAFAFA; font-weight:700;
+                                line-height:1.1;">
                         ${suggested_price:,.0f}
                     </div>
-                    <div style="font-family:Inter,sans-serif; font-size:0.78rem; color:#9CA3AF; margin-top:4px;">
-                        Quote this amount to the customer
+                    <div style="font-family:Inter,sans-serif; font-size:0.75rem; color:#6B7280; margin-top:6px;">
+                        ${per_head:,.0f} per guest
                     </div>
                 </div>
-                <div style="background:#1C1714; border:1px solid #2A231E; border-radius:12px; padding:1.2rem; text-align:center;">
-                    <div style="font-family:Inter,sans-serif; font-size:0.72rem; text-transform:uppercase;
-                                letter-spacing:1px; color:#6B7280; margin-bottom:6px;">Price Per Guest</div>
-                    <div style="font-family:'Playfair Display',serif; font-size:2.2rem; color:#FAFAFA; font-weight:700;">
-                        ${per_head:,.0f}
+                <div style="background:#1C1714; border:1px solid #2A231E; border-radius:14px; padding:1.2rem; text-align:center;
+                            display:flex; flex-direction:column; justify-content:center;">
+                    <div style="font-family:Inter,sans-serif; font-size:0.7rem; text-transform:uppercase;
+                                letter-spacing:1px; color:#6B7280; margin-bottom:6px;">Your Cost</div>
+                    <div style="font-family:'Playfair Display',serif; font-size:1.8rem; color:#FAFAFA; font-weight:700;">
+                        ${total_cost:,.0f}
                     </div>
-                    <div style="font-family:Inter,sans-serif; font-size:0.78rem; color:#9CA3AF; margin-top:4px;">
-                        per person served
+                    <div style="font-family:Inter,sans-serif; font-size:0.75rem; color:#6B7280; margin-top:4px;">
+                        ${total_cost / max(guest_count, 1):,.0f} per guest
                     </div>
                 </div>
-                <div style="background:#1C1714; border:1px solid #2A231E; border-radius:12px; padding:1.2rem; text-align:center;">
-                    <div style="font-family:Inter,sans-serif; font-size:0.72rem; text-transform:uppercase;
-                                letter-spacing:1px; color:#6B7280; margin-bottom:6px;">Your Profit</div>
-                    <div style="font-family:'Playfair Display',serif; font-size:2.2rem; color:#22C55E; font-weight:700;">
+                <div style="background:#1C1714; border:1px solid #2A231E; border-radius:14px; padding:1.2rem; text-align:center;
+                            display:flex; flex-direction:column; justify-content:center;">
+                    <div style="font-family:Inter,sans-serif; font-size:0.7rem; text-transform:uppercase;
+                                letter-spacing:1px; color:#6B7280; margin-bottom:6px;">Net Profit</div>
+                    <div style="font-family:'Playfair Display',serif; font-size:1.8rem; color:#22C55E; font-weight:700;">
                         ${profit:,.0f}
                     </div>
-                    <div style="font-family:Inter,sans-serif; font-size:0.78rem; color:#9CA3AF; margin-top:4px;">
+                    <div style="font-family:Inter,sans-serif; font-size:0.75rem; color:#22C55E; margin-top:4px;
+                                font-weight:600;">
                         {margin:.0f}% margin
                     </div>
                 </div>
             </div>
             """)
 
-            # Budget alert — what to tell the customer
+            # Budget status alert
             if not feasible and shortfall > 0:
                 _html(f"""
-                <div style="background:rgba(220,38,38,0.1); border:1px solid rgba(220,38,38,0.3);
-                            border-radius:12px; padding:1.2rem 1.5rem; margin-bottom:1rem;">
+                <div style="background:rgba(220,38,38,0.08); border:1px solid rgba(220,38,38,0.2);
+                            border-radius:14px; padding:1.2rem 1.5rem; margin-bottom:1rem;">
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:0.6rem;">
-                        <span style="font-size:1.3rem;">&#9888;</span>
-                        <span style="font-family:Inter,sans-serif; font-weight:700; font-size:0.95rem; color:#DC2626;">
-                            Customer Budget is Not Enough
+                        <span style="font-size:1.1rem; color:#DC2626;">&#9888;</span>
+                        <span style="font-family:Inter,sans-serif; font-weight:700; font-size:0.88rem; color:#DC2626;">
+                            Budget Shortfall
+                        </span>
+                        <span style="font-family:Inter,sans-serif; font-size:0.78rem; color:#9CA3AF; margin-left:auto;">
+                            Client budget: ${budget:,.0f}
                         </span>
                     </div>
-                    <div style="font-family:Inter,sans-serif; font-size:0.9rem; color:#D1D5DB; line-height:1.6;">
-                        The customer said their budget is <strong>${budget:,.0f}</strong>,
-                        but this event costs at least <strong>${total_cost:,.0f}</strong> to prepare.<br>
-                        They need to add <strong style="color:#DC2626;">${shortfall:,.0f} more</strong> to cover costs.
+                    <div style="font-family:Inter,sans-serif; font-size:0.85rem; color:#D1D5DB; line-height:1.6;">
+                        This event costs <strong>${total_cost:,.0f}</strong> to deliver.
+                        The customer needs to increase their budget by
+                        <strong style="color:#DC2626;">${shortfall:,.0f}</strong>.
                     </div>
-                    <div style="font-family:Inter,sans-serif; font-size:0.85rem; color:#C9A962;
-                                margin-top:0.8rem; padding:0.7rem; background:rgba(201,169,98,0.08);
-                                border-radius:8px; border-left:3px solid #C9A962;">
-                        <strong>Tell the customer:</strong> "For {state.customer.guest_count} guests with your requirements,
-                        the minimum price is ${total_cost:,.0f}. We can adjust the menu to fit your budget,
-                        or we recommend increasing the budget to ${suggested_price:,.0f} for the full experience."
+                    <div style="font-family:Inter,sans-serif; font-size:0.82rem; color:#C9A962;
+                                margin-top:0.8rem; padding:0.7rem 1rem; background:rgba(201,169,98,0.06);
+                                border-radius:10px; border-left:3px solid #C9A962; line-height:1.5;">
+                        <strong>Suggested response:</strong> &ldquo;For {guest_count} guests,
+                        the minimum is ${total_cost:,.0f}. We recommend ${suggested_price:,.0f}
+                        for the full experience, or we can adjust the menu to fit your budget.&rdquo;
                     </div>
                 </div>
                 """)
 
                 if state.pricing.optimization_suggestions:
-                    _html("""
-                    <div style="font-family:Inter,sans-serif; font-weight:600; font-size:0.85rem; color:#EAB308;
-                                margin-bottom:0.5rem;">Ways to Reduce Cost:</div>
-                    """)
+                    savings_html = ""
                     for sug in state.pricing.optimization_suggestions:
                         label = sug.get("suggestion", "")
                         saving = sug.get("estimated_saving_usd", 0)
-                        _html(f"""
-                        <div style="background:#1C1714; border:1px solid #2A231E; border-radius:8px;
-                                    padding:0.6rem 1rem; margin-bottom:0.4rem; display:flex;
-                                    justify-content:space-between; align-items:center; font-family:Inter,sans-serif;">
-                            <span style="font-size:0.85rem; color:#D1D5DB;">{label}</span>
-                            <span style="font-size:0.82rem; font-weight:600; color:#22C55E;">Save ${saving:,.0f}</span>
+                        savings_html += f"""
+                        <div style="display:flex; justify-content:space-between; align-items:center;
+                                    padding:0.6rem 1rem; border-bottom:1px solid rgba(42,35,30,0.5);">
+                            <span style="font-size:0.82rem; color:#D1D5DB;">{label}</span>
+                            <span style="font-size:0.78rem; font-weight:700; color:#22C55E; white-space:nowrap;
+                                        background:rgba(34,197,94,0.08); padding:3px 10px; border-radius:20px;">
+                                -${saving:,.0f}
+                            </span>
+                        </div>"""
+                    _html(f"""
+                    <div style="background:#1C1714; border:1px solid #2A231E; border-radius:12px;
+                                overflow:hidden; margin-bottom:1rem;">
+                        <div style="padding:0.7rem 1rem; font-family:Inter,sans-serif; font-weight:600;
+                                    font-size:0.78rem; color:#EAB308; text-transform:uppercase; letter-spacing:0.8px;
+                                    border-bottom:1px solid #2A231E;">
+                            Cost Optimizations
                         </div>
-                        """)
+                        {savings_html}
+                    </div>
+                    """)
             else:
                 _html(f"""
-                <div style="background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.25);
-                            border-radius:12px; padding:1rem 1.5rem; margin-bottom:1rem;
+                <div style="background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.2);
+                            border-radius:14px; padding:0.9rem 1.3rem; margin-bottom:1rem;
                             display:flex; align-items:center; gap:10px;">
-                    <span style="font-size:1.3rem;">&#10003;</span>
+                    <div style="width:32px; height:32px; border-radius:50%; background:rgba(34,197,94,0.12);
+                                display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <span style="color:#22C55E; font-size:1rem;">&#10003;</span>
+                    </div>
                     <div style="font-family:Inter,sans-serif;">
-                        <div style="font-weight:600; font-size:0.9rem; color:#22C55E;">Budget Looks Good</div>
-                        <div style="font-size:0.82rem; color:#9CA3AF;">
-                            Customer budget of <strong style="color:#FAFAFA;">${budget:,.0f}</strong>
-                            covers this event. You make <strong style="color:#22C55E;">${profit:,.0f} profit</strong>.
+                        <div style="font-weight:600; font-size:0.85rem; color:#22C55E;">Within Budget</div>
+                        <div style="font-size:0.78rem; color:#9CA3AF;">
+                            Customer budget <strong style="color:#FAFAFA;">${budget:,.0f}</strong>
+                            covers all costs. Profit: <strong style="color:#22C55E;">${profit:,.0f}</strong>.
                         </div>
                     </div>
                 </div>
                 """)
 
         # ==============================================================
-        # SECTION 2: YOUR COSTS (what the restaurant actually spends)
+        # SECTION 2: COST BREAKDOWN
         # ==============================================================
         if state.pricing.cost_breakdown.total_cost_usd > 0:
-            _html('<hr class="section-divider">')
             _html("""
-            <div style="font-family:'Playfair Display',serif; font-size:1.4rem; color:#C9A962; margin-bottom:1rem;">
-                Your Costs
+            <div class="results-section">
+                <div class="section-title"><span class="section-num">2</span>Cost Breakdown</div>
+                <div class="section-subtitle">Where your money goes</div>
             </div>
             """)
 
             cb = state.pricing.cost_breakdown
             cost_items = [
                 ("Food &amp; Ingredients", cb.ingredient_cost_usd, "#C9A962"),
-                ("Staff / Labor", cb.labor_cost_usd, "#60A5FA"),
+                ("Staff &amp; Labor", cb.labor_cost_usd, "#60A5FA"),
                 ("Delivery &amp; Transport", cb.logistics_cost_usd, "#A78BFA"),
                 ("Packaging &amp; Supplies", cb.packaging_cost_usd, "#F472B6"),
-                ("Overhead (rent, utilities)", cb.overhead_usd, "#6B7280"),
+                ("Overhead", cb.overhead_usd, "#6B7280"),
             ]
             total = cb.total_cost_usd or 1
 
             bar_html = ""
             for label, amount, color in cost_items:
                 pct = (amount / total * 100) if total > 0 else 0
-                bar_html += f'<div style="display:flex; align-items:center; gap:12px; margin-bottom:8px; font-family:Inter,sans-serif;"><div style="width:160px; font-size:0.82rem; color:#D1D5DB; flex-shrink:0;">{label}</div><div style="flex:1; background:#1C1714; border-radius:6px; height:24px; overflow:hidden;"><div style="width:{pct:.1f}%; height:100%; background:{color}; border-radius:6px; min-width:2px;"></div></div><div style="width:90px; text-align:right; font-size:0.85rem; font-weight:600; color:#FAFAFA; flex-shrink:0;">${amount:,.0f}</div></div>'
+                bar_html += f"""
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px; font-family:Inter,sans-serif;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:{color}; flex-shrink:0;"></div>
+                    <div style="width:150px; font-size:0.82rem; color:#D1D5DB; flex-shrink:0;">{label}</div>
+                    <div style="flex:1; background:rgba(42,35,30,0.5); border-radius:8px; height:28px; overflow:hidden;">
+                        <div style="width:{max(pct, 1.5):.1f}%; height:100%; background:{color}; border-radius:8px;
+                                    display:flex; align-items:center; padding-left:8px;">
+                            <span style="font-size:0.68rem; font-weight:600; color:#0E1117;
+                                        opacity:{1 if pct > 8 else 0};">{pct:.0f}%</span>
+                        </div>
+                    </div>
+                    <div style="width:80px; text-align:right; font-size:0.85rem; font-weight:600; color:#FAFAFA;
+                                flex-shrink:0;">${amount:,.0f}</div>
+                </div>"""
 
             _html(f"""
-            <div class="card">
+            <div class="card" style="padding:1.4rem 1.5rem;">
                 {bar_html}
                 <div style="display:flex; justify-content:space-between; align-items:center;
-                            border-top:2px solid #2A231E; margin-top:12px; padding-top:12px;
+                            border-top:2px solid #2A231E; margin-top:14px; padding-top:14px;
                             font-family:Inter,sans-serif;">
-                    <span style="font-size:0.9rem; font-weight:700; color:#C9A962; text-transform:uppercase;
-                                 letter-spacing:0.5px;">Total Cost to You</span>
-                    <span style="font-size:1.3rem; font-weight:700; color:#FAFAFA;">${total:,.0f}</span>
+                    <span style="font-size:0.85rem; font-weight:700; color:#C9A962; text-transform:uppercase;
+                                 letter-spacing:0.8px;">Total</span>
+                    <span style="font-size:1.4rem; font-weight:700; color:#FAFAFA;
+                                 font-family:'Playfair Display',serif;">${total:,.0f}</span>
                 </div>
             </div>
             """)
 
         # ==============================================================
-        # SECTION 3: MENU — what to prepare
+        # SECTION 3: MENU
         # ==============================================================
         if state.menu.items:
-            _html('<hr class="section-divider">')
-            _html("""
-            <div style="font-family:'Playfair Display',serif; font-size:1.4rem; color:#C9A962; margin-bottom:1rem;">
-                Menu &mdash; What to Prepare
+            total_menu_cost = sum(i.cost_per_portion_usd * i.portions_required for i in state.menu.items)
+            _html(f"""
+            <div class="results-section">
+                <div class="section-title"><span class="section-num">3</span>Menu</div>
+                <div class="section-subtitle">{len(state.menu.items)} dishes &middot;
+                    Total food cost: ${total_menu_cost:,.0f}</div>
             </div>
             """)
 
@@ -779,44 +906,85 @@ def render_results_panel(state, placeholder):
                 categories.setdefault(cat, []).append(item)
 
             for cat, items in categories.items():
-                cat_html = f'<div style="font-family:Inter,sans-serif; font-weight:600; font-size:0.78rem; text-transform:uppercase; letter-spacing:1px; color:#6B7280; margin-bottom:8px; margin-top:16px;">{cat}</div>'
+                cat_total = sum(i.cost_per_portion_usd * i.portions_required for i in items)
+                _html(f"""
+                <div style="display:flex; justify-content:space-between; align-items:center;
+                            margin-top:16px; margin-bottom:8px; padding-bottom:6px;
+                            border-bottom:1px solid rgba(42,35,30,0.6);">
+                    <span style="font-family:Inter,sans-serif; font-weight:600; font-size:0.75rem;
+                                 text-transform:uppercase; letter-spacing:1.2px; color:#6B7280;">{cat}</span>
+                    <span style="font-family:Inter,sans-serif; font-size:0.75rem; color:#4B5563;">
+                        ${cat_total:,.0f}
+                    </span>
+                </div>
+                """)
                 for item in items:
                     tags = "".join(f'<span class="tag">{t}</span>' for t in item.dietary_tags)
-                    total_cost = item.cost_per_portion_usd * item.portions_required
-                    cat_html += f'<div style="background:#1C1714; border:1px solid #2A231E; border-radius:10px; padding:0.8rem 1rem; margin-bottom:6px; font-family:Inter,sans-serif;"><div style="display:flex; justify-content:space-between; align-items:center;"><div><span style="font-weight:600; color:#FAFAFA; font-size:0.9rem;">{item.dish_name}</span><span style="margin-left:8px;">{tags}</span></div><span style="font-weight:600; color:#C9A962; font-size:0.85rem;">${total_cost:,.0f}</span></div><div style="font-size:0.78rem; color:#6B7280; margin-top:4px;">{item.portions_required} portions &middot; ${item.cost_per_portion_usd:.2f} each</div></div>'
-                _html(cat_html)
+                    item_total = item.cost_per_portion_usd * item.portions_required
+                    _html(f"""
+                    <div style="background:#1C1714; border:1px solid #2A231E; border-radius:10px;
+                                padding:0.75rem 1rem; margin-bottom:5px; font-family:Inter,sans-serif;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                <span style="font-weight:600; color:#FAFAFA; font-size:0.88rem;">{item.dish_name}</span>
+                                {tags}
+                            </div>
+                            <span style="font-weight:600; color:#C9A962; font-size:0.82rem; white-space:nowrap;
+                                        margin-left:12px;">${item_total:,.0f}</span>
+                        </div>
+                        <div style="font-size:0.75rem; color:#4B5563; margin-top:3px;">
+                            {item.portions_required} portions &middot; ${item.cost_per_portion_usd:.2f}/ea
+                        </div>
+                    </div>
+                    """)
 
             if state.menu.warnings:
                 for w in state.menu.warnings:
                     _html(f"""
-                    <div style="background:rgba(234,179,8,0.08); border:1px solid rgba(234,179,8,0.2);
-                                border-radius:8px; padding:0.6rem 1rem; margin-top:8px;
-                                font-family:Inter,sans-serif; font-size:0.82rem; color:#EAB308;">
-                        &#9888; {w}
+                    <div style="background:rgba(234,179,8,0.06); border:1px solid rgba(234,179,8,0.18);
+                                border-radius:10px; padding:0.7rem 1rem; margin-top:10px;
+                                font-family:Inter,sans-serif; font-size:0.82rem; color:#EAB308;
+                                display:flex; align-items:flex-start; gap:8px;">
+                        <span style="flex-shrink:0; margin-top:1px;">&#9888;</span>
+                        <span>{w}</span>
                     </div>
                     """)
 
         # ==============================================================
-        # SECTION 4: SHOPPING LIST (procurement)
+        # SECTION 4: PROCUREMENT
         # ==============================================================
         if state.inventory.procurement_list:
-            _html('<hr class="section-divider">')
-            _html("""
-            <div style="font-family:'Playfair Display',serif; font-size:1.4rem; color:#C9A962; margin-bottom:1rem;">
-                Shopping List
+            total_procurement = sum(p.total_cost_usd for p in state.inventory.procurement_list)
+            confirmed_count = sum(1 for p in state.inventory.procurement_list if p.availability == "confirmed")
+            _html(f"""
+            <div class="results-section">
+                <div class="section-title"><span class="section-num">4</span>Procurement</div>
+                <div class="section-subtitle">{len(state.inventory.procurement_list)} items &middot;
+                    {confirmed_count} confirmed &middot; ${total_procurement:,.0f} total</div>
             </div>
             """)
 
             rows_html = ""
-            for p in state.inventory.procurement_list:
-                avail_color = "#22C55E" if p.availability == "confirmed" else "#EAB308" if p.availability == "partial" else "#DC2626"
-                avail_label = p.availability.title()
-                rows_html += f'<tr><td style="font-weight:500; color:#FAFAFA;">{p.ingredient}</td><td>{p.quantity_required:.1f} {p.unit}</td><td>{p.supplier_name}</td><td style="text-align:right;">${p.total_cost_usd:,.0f}</td><td style="text-align:center;"><span style="color:{avail_color}; font-weight:600; font-size:0.78rem;">{avail_label}</span></td></tr>'
+            for i, p in enumerate(state.inventory.procurement_list):
+                avail_colors = {"confirmed": "#22C55E", "partial": "#EAB308", "unavailable": "#DC2626"}
+                avail_color = avail_colors.get(p.availability, "#6B7280")
+                avail_icon = "&#10003;" if p.availability == "confirmed" else "&#9679;" if p.availability == "partial" else "&#10007;"
+                rows_html += f"""<tr>
+                    <td style="font-weight:500; color:#FAFAFA;">{p.ingredient}</td>
+                    <td style="white-space:nowrap;">{p.quantity_required:.1f} {p.unit}</td>
+                    <td style="color:#9CA3AF;">{p.supplier_name}</td>
+                    <td style="text-align:right; font-weight:600;">${p.total_cost_usd:,.0f}</td>
+                    <td style="text-align:center;">
+                        <span style="color:{avail_color}; font-size:0.78rem; font-weight:600;">
+                            {avail_icon} {p.availability.title()}
+                        </span>
+                    </td>
+                </tr>"""
 
             _html(f"""
             <table class="menu-table">
                 <thead><tr>
-                    <th>Item</th><th>Quantity</th><th>Supplier</th>
+                    <th>Ingredient</th><th>Qty</th><th>Supplier</th>
                     <th style="text-align:right;">Cost</th><th style="text-align:center;">Status</th>
                 </tr></thead>
                 <tbody>{rows_html}</tbody>
@@ -824,15 +992,24 @@ def render_results_panel(state, placeholder):
             """)
 
         # ==============================================================
-        # SECTION 5: WARNINGS — things to watch out for
+        # SECTION 5: RISK ASSESSMENT
         # ==============================================================
         has_risks = state.monitoring.risks
         has_shortages = state.inventory.shortages
         if has_risks or has_shortages:
-            _html('<hr class="section-divider">')
-            _html("""
-            <div style="font-family:'Playfair Display',serif; font-size:1.4rem; color:#C9A962; margin-bottom:1rem;">
-                Things to Watch Out For
+            risk_level = state.monitoring.overall_risk_level or "NONE"
+            risk_colors = {"NONE": "#22C55E", "LOW": "#22C55E", "MEDIUM": "#EAB308", "HIGH": "#DC2626", "CRITICAL": "#DC2626"}
+            rl_color = risk_colors.get(risk_level, "#6B7280")
+            _html(f"""
+            <div class="results-section">
+                <div class="section-title">
+                    <span class="section-num">5</span>Risk Assessment
+                    <span style="font-family:Inter,sans-serif; font-size:0.7rem; font-weight:700;
+                                 color:{rl_color}; margin-left:12px; padding:3px 10px;
+                                 background:{rl_color}15; border:1px solid {rl_color}30;
+                                 border-radius:20px; letter-spacing:0.5px;">{risk_level}</span>
+                </div>
+                <div class="section-subtitle">Issues and warnings to review before confirming</div>
             </div>
             """)
 
@@ -840,72 +1017,131 @@ def render_results_panel(state, placeholder):
                 for risk in state.monitoring.risks:
                     sev = risk.severity.lower()
                     css_class = f"risk-{sev}" if sev in ("critical", "high", "medium", "low") else "risk-low"
-                    icon = "&#9888;" if sev in ("critical", "high") else "&#9432;"
+                    sev_colors = {"critical": "#DC2626", "high": "#DC2626", "medium": "#EAB308", "low": "#22C55E"}
+                    dot_color = sev_colors.get(sev, "#6B7280")
                     _html(f"""
                     <div class="{css_class}">
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <span style="font-size:1rem;">{icon}</span>
-                            <span class="risk-label" style="color:inherit;">{risk.severity}</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="width:8px; height:8px; border-radius:50%; background:{dot_color};
+                                        flex-shrink:0;"></span>
+                            <span class="risk-label" style="color:{dot_color};">{risk.severity}</span>
+                            <span style="font-family:Inter,sans-serif; font-size:0.75rem; color:#4B5563;
+                                        margin-left:auto;">{risk.type}</span>
                         </div>
                         <div class="risk-desc">{risk.description}</div>
-                        <div class="risk-action"><strong>What to do:</strong> {risk.suggested_action}</div>
+                        <div class="risk-action">
+                            <strong style="color:#6B7280;">Action:</strong> {risk.suggested_action}
+                        </div>
                     </div>
                     """)
 
             if has_shortages:
                 _html("""
-                <div style="font-family:Inter,sans-serif; font-weight:600; font-size:0.82rem;
-                            color:#EAB308; margin-top:12px; margin-bottom:8px;">Ingredient Shortages</div>
+                <div style="font-family:Inter,sans-serif; font-weight:600; font-size:0.78rem;
+                            color:#EAB308; margin-top:14px; margin-bottom:8px; text-transform:uppercase;
+                            letter-spacing:0.8px;">Ingredient Shortages</div>
                 """)
                 for s in state.inventory.shortages:
                     sev_color = "#DC2626" if s.severity == "HIGH" else "#EAB308" if s.severity == "MEDIUM" else "#22C55E"
-                    sub_text = f' &mdash; <span style="color:#C9A962;">Use {s.suggested_substitute} instead</span>' if s.suggested_substitute else ""
+                    deficit_pct = (s.deficit / s.required * 100) if s.required > 0 else 0
+                    sub_text = f'<div style="color:#C9A962; font-size:0.78rem; margin-top:4px;">Suggested substitute: <strong>{s.suggested_substitute}</strong></div>' if s.suggested_substitute else ""
                     _html(f"""
                     <div class="shortage-row">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <span style="font-weight:500; color:#FAFAFA;">{s.ingredient}</span>
-                            <span style="color:{sev_color}; font-size:0.78rem; font-weight:600;">{s.severity}</span>
+                            <span style="color:{sev_color}; font-size:0.72rem; font-weight:700; padding:2px 10px;
+                                        background:{sev_color}15; border-radius:20px;">{s.severity}</span>
                         </div>
-                        <div style="color:#9CA3AF; font-size:0.82rem; margin-top:4px;">
-                            Need {s.required:.1f}kg but only {s.available:.1f}kg available (short by {s.deficit:.1f}kg){sub_text}
+                        <div style="color:#9CA3AF; font-size:0.82rem; margin-top:6px;">
+                            Need <strong style="color:#FAFAFA;">{s.required:.1f}kg</strong>,
+                            have {s.available:.1f}kg
+                            <span style="color:{sev_color}; font-weight:600;">&mdash; short {s.deficit:.1f}kg ({deficit_pct:.0f}%)</span>
                         </div>
+                        {sub_text}
                     </div>
                     """)
 
-        # --- Monitoring summary ---
+        # ── AI Summary ──
         if state.monitoring.summary:
             _html(f"""
-            <div class="card" style="border-left:3px solid #C9A962; margin-top:1rem;">
-                <div style="font-family:Inter,sans-serif; font-size:0.72rem; text-transform:uppercase;
-                            letter-spacing:1px; color:#6B7280; margin-bottom:6px;">AI Summary</div>
-                <div style="font-family:Inter,sans-serif; font-size:0.85rem; color:#D1D5DB; line-height:1.5;">
+            <div style="background:#1C1714; border:1px solid #2A231E; border-radius:14px;
+                        padding:1.2rem 1.5rem; margin-top:1.5rem;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                    <div style="width:24px; height:24px; border-radius:6px; background:rgba(201,169,98,0.12);
+                                display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <span style="font-size:0.7rem; color:#C9A962;">AI</span>
+                    </div>
+                    <span style="font-family:Inter,sans-serif; font-size:0.72rem; text-transform:uppercase;
+                                 letter-spacing:1px; color:#6B7280; font-weight:600;">Summary</span>
+                </div>
+                <div style="font-family:Inter,sans-serif; font-size:0.85rem; color:#D1D5DB; line-height:1.6;">
                     {state.monitoring.summary}
                 </div>
             </div>
             """)
 
-        # --- Action buttons ---
-        btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 1])
+        # ── Action buttons ──
+        _html('<div style="margin-top:1.5rem;"></div>')
+        btn_col1, btn_col2, btn_col3 = st.columns([2, 1, 1])
         with btn_col1:
             pdf_bytes = generate_pdf(state)
-            event_type = (state.customer.event_type or "event").replace("_", "-")
-            filename = f"orchefai-{event_type}-{state.customer.guest_count or 0}guests.pdf"
+            ev_type = (state.customer.event_type or "event").replace("_", "-")
+            filename = f"orchefai-{ev_type}-{guest_count}guests.pdf"
             st.download_button(
                 label="Download PDF Report",
                 data=pdf_bytes,
                 file_name=filename,
                 mime="application/pdf",
                 use_container_width=True,
+                type="primary",
             )
         with btn_col2:
             st.page_link("pages/1_Restaurant_Profile.py", label="Restaurant Profile", use_container_width=True)
         with btn_col3:
             st.page_link("pages/2_Event_History.py", label="Event History", use_container_width=True)
 
+        # ── Regenerate with feedback ──
         _html("""
-        <hr class="section-divider">
-        <div style="text-align:center; color:#374151; font-size:0.75rem; font-family:Inter,sans-serif; padding-bottom:1rem;">
-            OrchefAI &mdash; Multi-Agent Catering Operations &mdash; CWB Hackathon 2026
+        <div style="margin-top:1.5rem; padding:1.2rem 1.5rem; background:#1C1714;
+                    border:1px solid #2A231E; border-radius:14px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:0.5rem;">
+                <span style="font-size:0.9rem;">&#8634;</span>
+                <span style="font-family:Inter,sans-serif; font-weight:600; font-size:0.85rem; color:#C9A962;">
+                    Refine This Plan
+                </span>
+            </div>
+            <p style="font-family:Inter,sans-serif; color:#6B7280; font-size:0.78rem; margin-bottom:0.6rem;">
+                Describe changes — the AI will regenerate the entire proposal with your feedback.
+            </p>
+        </div>
+        """)
+        regen_feedback = st.text_area(
+            "Your feedback",
+            placeholder="e.g. Replace the lamb dishes with chicken, add a live pasta station, reduce overall cost by 15%...",
+            key="regen_feedback",
+            label_visibility="collapsed",
+        )
+        if st.button("Regenerate Plan", use_container_width=True, key="regen_btn"):
+            if regen_feedback and regen_feedback.strip():
+                existing = state.customer.special_requests or ""
+                state.customer.special_requests = f"{existing}\nREVISION REQUEST: {regen_feedback.strip()}".strip()
+                state.menu.items = []
+                state.inventory = InventoryData()
+                state.pricing = PricingData()
+                state.monitoring = MonitoringData()
+                state.status = "in_progress"
+                st.session_state["_action"] = "plan_form"
+                st.session_state["_action_customer"] = state.customer
+                st.session_state["is_regeneration"] = True
+                st.session_state["state"] = None
+                st.rerun()
+            else:
+                st.warning("Please describe what you'd like changed before regenerating.")
+
+        _html("""
+        <div style="text-align:center; color:#2A231E; font-size:0.72rem; font-family:Inter,sans-serif;
+                    padding:2rem 0 1rem 0; letter-spacing:0.5px;">
+            OrchefAI &middot; Multi-Agent Catering Operations &middot; CWB Hackathon 2026
         </div>
         """)
 
@@ -914,70 +1150,69 @@ def render_results_panel(state, placeholder):
 # LAYOUT
 # ============================================================
 
-st.markdown('<div class="card-header">Event Request</div>', unsafe_allow_html=True)
+header_col, toggle_col = st.columns([3, 1])
+with header_col:
+    st.markdown('<div class="card-header">New Catering Order</div>', unsafe_allow_html=True)
+with toggle_col:
+    free_text_mode = st.toggle("Free-text input", value=False, key="free_text_toggle")
 
-free_text_mode = st.toggle("Switch to free-text mode", value=False, key="free_text_toggle")
+# Demo presets (shown in both modes)
+st.markdown("""
+<style>
+    .qf-row { display:flex; gap:10px; margin-bottom:1rem; flex-wrap:wrap; }
+    .qf-chip { background:#1C1714; border:1px solid #2A231E; border-radius:8px; padding:6px 14px; font-family:Inter,sans-serif; font-size:0.75rem; color:#9CA3AF; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s; white-space:nowrap; }
+    .qf-chip:hover { border-color:#C9A962; color:#C9A962; }
+    .qf-chip span { font-size:0.85rem; }
+</style>
+<div class="qf-row">
+    <span style="font-family:Inter,sans-serif; font-size:0.72rem; color:#4B5563; align-self:center; margin-right:4px;">TRY DEMO:</span>
+    <a class="qf-chip" href="?qf_demo=wedding"><span>🕌</span> Wedding · 200 pax · $15K</a>
+    <a class="qf-chip" href="?qf_demo=corporate"><span>🏢</span> Corporate · 50 pax · $2K</a>
+    <a class="qf-chip" href="?qf_demo=gala"><span>🍸</span> Gala · 150 pax · $12K</a>
+</div>
+""", unsafe_allow_html=True)
 
 if free_text_mode:
     # --- Free-text fallback (old mode) ---
-    col_input, col_qf = st.columns([3, 2], gap="medium")
-    with col_input:
-        user_input = st.text_area(
-            "Describe your catering requirement:",
-            key="event_input",
-            placeholder='e.g. "Plan a halal dinner for 200 guests this Saturday at Marina Bay Sands, 7 PM, budget $12,000"',
-            height=140,
-            label_visibility="collapsed",
-        )
+    user_input = st.text_area(
+        "Describe the client's catering requirement:",
+        key="event_input",
+        placeholder='e.g. "Plan a halal dinner for 200 guests this Saturday at Marina Bay Sands, 7 PM, budget $12,000"',
+        height=120,
+        label_visibility="collapsed",
+    )
 
-        audio_bytes = audio_recorder(
-            text="",
-            recording_color="#DC2626",
-            neutral_color="#C9A962",
-            icon_size="1.2rem",
-            pause_threshold=2.5,
-            sample_rate=16000,
-            key="voice_recorder",
-        )
+    audio_bytes = audio_recorder(
+        text="",
+        recording_color="#DC2626",
+        neutral_color="#C9A962",
+        icon_size="1.2rem",
+        pause_threshold=2.5,
+        sample_rate=16000,
+        key="voice_recorder",
+    )
 
-        if audio_bytes:
-            with st.spinner("Transcribing..."):
-                try:
-                    event_id = None
-                    state = st.session_state.get("state")
-                    if hasattr(state, "event_id"):
-                        event_id = state.event_id
-                    save_audio(audio_bytes, event_id)
+    if audio_bytes:
+        with st.spinner("Transcribing..."):
+            try:
+                event_id = None
+                state = st.session_state.get("state")
+                if hasattr(state, "event_id"):
+                    event_id = state.event_id
+                save_audio(audio_bytes, event_id)
 
-                    transcript = transcribe_audio(audio_bytes)
-                    if transcript:
-                        current = st.session_state.get("event_input", "")
-                        if current.strip():
-                            st.session_state["event_input"] = current.rstrip() + " " + transcript
-                        else:
-                            st.session_state["event_input"] = transcript
-                        st.rerun()
+                transcript = transcribe_audio(audio_bytes)
+                if transcript:
+                    current = st.session_state.get("event_input", "")
+                    if current.strip():
+                        st.session_state["event_input"] = current.rstrip() + " " + transcript
                     else:
-                        st.toast("Could not detect speech. Please try again.")
-                except Exception as e:
-                    st.error(f"Transcription failed: {e}")
-
-    with col_qf:
-        st.markdown("""
-        <style>
-            .qf-label { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #6B7280; margin-bottom: 8px; }
-            .qf-card { background: #1C1714; border: 1px solid #2A231E; border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; text-decoration: none; }
-            .qf-card:hover { border-color: #C9A962; background: rgba(201,169,98,0.05); }
-            .qf-icon { font-size: 1.4rem; flex-shrink: 0; }
-            .qf-title { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.8rem; color: #FAFAFA; }
-            .qf-detail { font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #6B7280; margin-top: 2px; }
-            .qf-budget { font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #C9A962; font-weight: 600; margin-top: 1px; }
-        </style>
-        <div class="qf-label">Demo Presets (Instant)</div>
-        <a class="qf-card" href="?qf_demo=wedding"><div class="qf-icon">🕌</div><div><div class="qf-title">Halal Wedding Dinner</div><div class="qf-detail">200 guests · Marina Bay Sands · Sat 7 PM</div><div class="qf-budget">$15,000</div></div></a>
-        <a class="qf-card" href="?qf_demo=corporate"><div class="qf-icon">🏢</div><div><div class="qf-title">Corporate Lunch</div><div class="qf-detail">50 guests · Raffles Place · Thu 12 PM</div><div class="qf-budget">$2,000</div></div></a>
-        <a class="qf-card" href="?qf_demo=gala"><div class="qf-icon">🍸</div><div><div class="qf-title">Gala Cocktail Reception</div><div class="qf-detail">150 guests · Fullerton Hotel · Fri 8 PM</div><div class="qf-budget">$12,000</div></div></a>
-        """, unsafe_allow_html=True)
+                        st.session_state["event_input"] = transcript
+                    st.rerun()
+                else:
+                    st.toast("Could not detect speech. Please try again.")
+            except Exception as e:
+                st.error(f"Transcription failed: {e}")
 
 else:
     # --- Structured Intake Form ---
@@ -995,57 +1230,58 @@ else:
     BEVERAGE_OPTIONS = ["Non-Alcoholic", "Mocktails", "Wine", "Beer", "Full Bar", "Tea / Coffee Station"]
 
     with st.form("intake_form", clear_on_submit=False):
-        # Section A: Event Basics
-        st.markdown('<p style="color:#C9A962; font-weight:600; font-size:0.85rem; margin-bottom:0.3rem;">ORDER DETAILS *</p>', unsafe_allow_html=True)
+        # ── Section A: Core details (always visible) ──
+        st.markdown('<p style="color:#C9A962; font-weight:600; font-size:0.85rem; margin-bottom:0.3rem;">ORDER DETAILS</p>', unsafe_allow_html=True)
         fa_col1, fa_col2 = st.columns(2)
         with fa_col1:
             form_event_type = st.selectbox("Event Type *", EVENT_TYPES, index=None, placeholder="Select event type...")
-            form_event_type_custom = st.text_input("If 'Other', specify event type", placeholder="e.g. Housewarming, Farewell Party...")
             form_date = st.date_input("Event Date *", value=None, min_value=date.today())
+            form_venue = st.text_input("Venue / Delivery Location *", placeholder="e.g. Marina Bay Sands, Singapore")
         with fa_col2:
             form_guest_count = st.number_input("Expected Guests *", min_value=1, max_value=10000, value=None, step=10, placeholder="e.g. 200")
-            form_time = st.time_input("Service Time *", value=dt_time(19, 0))
-        form_venue = st.text_input("Venue / Delivery Location *", placeholder="e.g. Marina Bay Sands, Singapore")
+            ft_col1, ft_col2 = st.columns(2)
+            with ft_col1:
+                form_time = st.time_input("Service Start *", value=dt_time(19, 0))
+            with ft_col2:
+                form_end_time = st.time_input("Service End *", value=dt_time(23, 0))
+            fb_col1, fb_col2 = st.columns(2)
+            with fb_col1:
+                form_budget_min = st.number_input("Min Budget ($)", min_value=0, value=None, step=500, placeholder="e.g. 5000")
+            with fb_col2:
+                form_budget_max = st.number_input("Max Budget ($) *", min_value=0, value=None, step=500, placeholder="e.g. 15000")
+        form_event_type_custom = ""
+        if form_event_type == "Other":
+            form_event_type_custom = st.text_input("Specify event type", placeholder="e.g. Housewarming, Farewell Party...")
 
-        # Section B: Budget
-        st.markdown('<p style="color:#C9A962; font-weight:600; font-size:0.85rem; margin-top:1rem; margin-bottom:0.3rem;">BUDGET (USD) *</p>', unsafe_allow_html=True)
-        fb_col1, fb_col2 = st.columns(2)
-        with fb_col1:
-            form_budget_min = st.number_input("Minimum Budget ($)", min_value=0, value=None, step=500, placeholder="e.g. 5000")
-        with fb_col2:
-            form_budget_max = st.number_input("Maximum Budget ($)", min_value=0, value=None, step=500, placeholder="e.g. 15000")
-
-        # Section C: Food & Dietary
-        st.markdown('<p style="color:#C9A962; font-weight:600; font-size:0.85rem; margin-top:1rem; margin-bottom:0.3rem;">FOOD & DIETARY PREFERENCES</p>', unsafe_allow_html=True)
-        form_dietary = st.multiselect("Dietary Requirements", DIETARY_OPTIONS, placeholder="Select dietary needs...")
-        fc_col1, fc_col2 = st.columns(2)
-        with fc_col1:
-            form_cuisines = st.multiselect("Cuisine Preferences", CUISINE_OPTIONS, placeholder="Select cuisines...")
-            form_courses = st.multiselect("Meal Courses", COURSE_OPTIONS, placeholder="Select courses...")
-        with fc_col2:
-            form_service_style = st.selectbox("Service Style", SERVICE_STYLES, index=None, placeholder="Select style...")
+        # ── Section B: Menu preferences (collapsed by default) ──
+        st.markdown('<p style="color:#C9A962; font-weight:600; font-size:0.85rem; margin-top:1.2rem; margin-bottom:0.3rem;">MENU PREFERENCES</p><p style="color:#6B7280; font-size:0.75rem; font-family:Inter,sans-serif; margin-bottom:0.5rem;">Optional — helps the AI plan a better menu</p>', unsafe_allow_html=True)
+        fm_col1, fm_col2 = st.columns(2)
+        with fm_col1:
+            form_dietary = st.multiselect("Dietary Requirements", DIETARY_OPTIONS, placeholder="e.g. Halal, Vegetarian...")
+            form_cuisines = st.multiselect("Cuisine Type", CUISINE_OPTIONS, placeholder="e.g. Indian, Italian...")
+        with fm_col2:
+            form_service_style = st.selectbox("Service Format", SERVICE_STYLES, index=None, placeholder="e.g. Buffet, Plated...")
+            form_courses = st.multiselect("Courses to Serve", COURSE_OPTIONS, placeholder="e.g. Starters, Main, Dessert...")
+        fm2_col1, fm2_col2 = st.columns(2)
+        with fm2_col1:
             form_variety = st.selectbox("Menu Variety", ["Minimal (2-3 items)", "Moderate (4-6 items)", "Extensive (7+ items)"], index=1, help="How many dishes per course?")
-            form_beverages = st.multiselect("Beverages", BEVERAGE_OPTIONS, placeholder="Select beverages...")
+        with fm2_col2:
+            form_beverages = st.multiselect("Beverage Service", BEVERAGE_OPTIONS, placeholder="e.g. Mocktails, Tea/Coffee...")
 
-        # Section D: Logistics
-        st.markdown('<p style="color:#C9A962; font-weight:600; font-size:0.85rem; margin-top:1rem; margin-bottom:0.3rem;">LOGISTICS</p>', unsafe_allow_html=True)
-        fd_col1, fd_col2 = st.columns(2)
-        with fd_col1:
-            form_indoor_outdoor = st.radio("Setting", ["Indoor", "Outdoor", "Both"], horizontal=True)
-        with fd_col2:
-            form_kitchen = st.checkbox("Venue has kitchen facilities", value=True)
+        # ── Section C: Venue, client & notes (compact row) ──
+        st.markdown('<p style="color:#C9A962; font-weight:600; font-size:0.85rem; margin-top:1.2rem; margin-bottom:0.3rem;">ADDITIONAL DETAILS</p>', unsafe_allow_html=True)
+        fc_col1, fc_col2, fc_col3 = st.columns(3)
+        with fc_col1:
+            form_indoor_outdoor = st.radio("Venue Setting", ["Indoor", "Outdoor", "Both"], horizontal=True)
+            form_kitchen = st.checkbox("On-site kitchen available", value=True)
+        with fc_col2:
+            form_name = st.text_input("Client Name / Company", placeholder="e.g. Acme Corp")
+        with fc_col3:
+            form_contact = st.text_input("Client Contact", placeholder="e.g. john@acme.com")
+        form_special = st.text_area("Special Instructions", placeholder="e.g. Live cooking station, kids menu for 20, VIP table setup...", height=68)
 
-        # Section E: Additional
-        st.markdown('<p style="color:#C9A962; font-weight:600; font-size:0.85rem; margin-top:1rem; margin-bottom:0.3rem;">ADDITIONAL DETAILS</p>', unsafe_allow_html=True)
-        fe_col1, fe_col2 = st.columns(2)
-        with fe_col1:
-            form_name = st.text_input("Your Name / Organization", placeholder="e.g. John Smith / Acme Corp")
-        with fe_col2:
-            form_contact = st.text_input("Contact (email or phone)", placeholder="e.g. john@example.com")
-        form_special = st.text_area("Special Requests", placeholder="e.g. Live cooking station, kids menu for 20 children, specific dessert theme...", height=80)
-
-        # Submit
-        submitted = st.form_submit_button("Plan This Event", type="primary", disabled=st.session_state["running"], use_container_width=True)
+        # ── Submit ──
+        submitted = st.form_submit_button("Generate Plan", type="primary", disabled=st.session_state["running"], use_container_width=True)
 
         if submitted:
             errors = []
@@ -1077,6 +1313,7 @@ else:
                     event_type=form_event_type_custom.strip().lower().replace(" ", "_") if form_event_type == "Other" and form_event_type_custom.strip() else EVENT_TYPE_MAP.get(form_event_type),
                     event_date=form_date.isoformat(),
                     event_time=form_time.strftime("%H:%M"),
+                    event_end_time=form_end_time.strftime("%H:%M"),
                     guest_count=form_guest_count,
                     venue=form_venue.strip(),
                     dietary_requirements=[d.lower() for d in form_dietary],
@@ -1132,7 +1369,7 @@ if free_text_mode:
     btn_cols = st.columns([1, 1] if can_proceed else [1])
 
     with btn_cols[0]:
-        if st.button("Plan This Event", type="primary", disabled=st.session_state["running"], use_container_width=True):
+        if st.button("Generate Plan", type="primary", disabled=st.session_state["running"], use_container_width=True):
             if user_input and user_input.strip():
                 st.session_state["_action"] = "plan"
                 st.session_state["_action_input"] = user_input
@@ -1142,7 +1379,8 @@ if free_text_mode:
             if st.button("Continue Anyway", type="secondary", disabled=st.session_state["running"], use_container_width=True):
                 st.session_state["_action"] = "continue"
 
-# === Placeholders (progress bar + results, full-width below input) ===
+# === Placeholders (loader, progress bar + results, full-width below input) ===
+loader_placeholder = st.empty()
 progress_placeholder = st.empty()
 results_placeholder = st.empty()
 
@@ -1160,7 +1398,13 @@ if action == "plan":
     st.session_state["validation_errors"] = None
     st.session_state["validation_warnings"] = None
 
+    render_loader(loader_placeholder, is_regen=False, step_index=0)
+
+    _step_counter = {"n": 0}
+
     def on_intake_update(s: EventState):
+        _step_counter["n"] = min(_step_counter["n"] + 1, 4)
+        render_loader(loader_placeholder, is_regen=False, step_index=_step_counter["n"])
         render_progress_bar(s, progress_placeholder, running=True)
 
     try:
@@ -1175,14 +1419,18 @@ if action == "plan":
             st.session_state["validation_errors"] = missing_req
             st.session_state["validation_warnings"] = missing_rec if missing_rec else None
             st.session_state["running"] = False
+            loader_placeholder.empty()
             st.rerun()
         elif missing_rec:
             st.session_state["intake_state"] = intake_state
             st.session_state["validation_warnings"] = missing_rec
             st.session_state["running"] = False
+            loader_placeholder.empty()
             st.rerun()
         else:
             def on_pipeline_update(s: EventState):
+                _step_counter["n"] = min(_step_counter["n"] + 1, 4)
+                render_loader(loader_placeholder, is_regen=False, step_index=_step_counter["n"])
                 render_progress_bar(s, progress_placeholder, running=True)
                 render_results_panel(s, results_placeholder)
 
@@ -1192,14 +1440,17 @@ if action == "plan":
             st.session_state["state"] = state
             st.session_state["intake_state"] = None
             st.session_state["running"] = False
+            loader_placeholder.empty()
             st.rerun()
 
     except Exception as e:
+        loader_placeholder.empty()
         st.error(f"Pipeline error: {e}")
         st.session_state["running"] = False
 
 elif action == "plan_form":
     customer = st.session_state.pop("_action_customer", None)
+    is_regen = st.session_state.pop("is_regeneration", False)
     if customer:
         st.session_state["running"] = True
         st.session_state["state"] = None
@@ -1207,12 +1458,18 @@ elif action == "plan_form":
         st.session_state["validation_errors"] = None
         st.session_state["validation_warnings"] = None
 
+        render_loader(loader_placeholder, is_regen=is_regen, step_index=0)
+
         form_state = EventState()
         form_state.customer = customer
         form_state.status = "in_progress"
         form_state.log("IntakeAgent", "form_submission", f"{customer.guest_count} guests, {customer.event_type}", "success")
 
+        _step_counter = {"n": 0}
+
         def on_pipeline_update(s: EventState):
+            _step_counter["n"] = min(_step_counter["n"] + 1, 4)
+            render_loader(loader_placeholder, is_regen=is_regen, step_index=_step_counter["n"])
             render_progress_bar(s, progress_placeholder, running=True)
             render_results_panel(s, results_placeholder)
 
@@ -1224,13 +1481,19 @@ elif action == "plan_form":
         except Exception as e:
             st.error(f"Pipeline error: {e}")
         finally:
+            loader_placeholder.empty()
             st.session_state["running"] = False
             st.rerun()
 
 elif action == "continue":
     st.session_state["running"] = True
 
+    render_loader(loader_placeholder, is_regen=False, step_index=1)
+    _step_counter = {"n": 1}
+
     def on_pipeline_update(s: EventState):
+        _step_counter["n"] = min(_step_counter["n"] + 1, 4)
+        render_loader(loader_placeholder, is_regen=False, step_index=_step_counter["n"])
         render_progress_bar(s, progress_placeholder, running=True)
         render_results_panel(s, results_placeholder)
 
@@ -1244,6 +1507,7 @@ elif action == "continue":
     except Exception as e:
         st.error(f"Pipeline error: {e}")
     finally:
+        loader_placeholder.empty()
         st.session_state["intake_state"] = None
         st.session_state["validation_errors"] = None
         st.session_state["validation_warnings"] = None

@@ -1,52 +1,123 @@
-# 🍽️ OrchefAI
-### AI-Powered Multi-Agent System for Smart Catering Operations
+# OrchefAI
+
+### Autonomous Multi-Agent Catering Operations Platform
+
+**Built with Microsoft Azure AI + NVIDIA NIM | Multi-Agent Orchestration | RAG-Powered Intelligence**
 
 ---
 
-## What is OrchefAI?
+## Problem
 
-OrchefAI is a production-grade multi-agent AI system that transforms catering operations from a manual, fragmented process into a fully orchestrated workflow.
+Catering operations is a **$320B global industry** still run on spreadsheets, WhatsApp groups, and phone calls. A single event requires coordinating menus, suppliers, pricing, dietary compliance, and risk management — typically taking **20+ hours of manual work per event**.
 
-A team of **5 specialized AI agents** collaborate in real-time to convert a customer's natural language request into a complete, costed, and risk-validated catering plan — in under 60 seconds.
-
-> *"Catering managers currently spend 20+ hours/week on manual coordination across spreadsheets, WhatsApp, and phone calls. OrchefAI eliminates that entirely."*
+No production-grade AI system exists to orchestrate this end-to-end.
 
 ---
 
-## The Agent Team
+## Solution
 
-| Agent | Role | Model |
-|---|---|---|
-| 🎯 **Orchestrator** | Coordinates all agents, manages workflow graph | Nemotron-4 340B |
-| 📋 **Intake Agent** | Converts natural language → structured event profile | Llama 3.1 70B |
-| 🍽️ **Menu Agent** | RAG-powered menu planning from knowledge base | Llama 3.1 70B |
-| 📦 **Inventory Agent** | Ingredient mapping, shortage detection, procurement | Llama 3.1 8B |
-| 💰 **Pricing Agent** | Cost calculation, margin analysis, budget feasibility | Llama 3.1 8B |
-| 🔍 **Monitoring Agent** | Risk detection, autonomous re-planning trigger | Llama 3.1 70B |
+OrchefAI is a **multi-agent AI system** where 5 specialized agents collaborate autonomously to convert a natural language catering request into a complete, costed, risk-validated plan — in under 30 seconds.
+
+The system features **autonomous recovery**: when the Monitoring Agent detects a high-severity risk (ingredient shortage, budget conflict, dietary violation), it triggers an automatic re-planning loop without human intervention.
 
 ---
 
-## Tech Stack
+## Architecture
 
-| Component | Technology |
-|---|---|
-| Agent Framework | **Microsoft Agent Framework (MAF) v1.0** |
-| LLM Inference | **NVIDIA NIM API** (OpenAI-compatible) |
-| RAG / Knowledge Base | **Azure AI Search** (semantic ranking) |
-| Shared Agent Memory | **Azure Cosmos DB** |
-| UI | **Streamlit** |
-| Language | **Python 3.11+** |
+```
+                        ┌─────────────────────────────┐
+                        │     Streamlit UI Layer       │
+                        │  (Voice + Text + PDF Export) │
+                        └──────────────┬──────────────┘
+                                       │
+                        ┌──────────────▼──────────────┐
+                        │    Orchestrator Agent        │
+                        │  (Workflow Graph Controller) │
+                        └──────────────┬──────────────┘
+                                       │
+              ┌────────────────────────┼────────────────────────┐
+              │                        │                        │
+   ┌──────────▼──────────┐  ┌─────────▼─────────┐  ┌──────────▼──────────┐
+   │    Intake Agent      │  │    Menu Agent      │  │  Inventory Agent    │
+   │  (NLU → Structured)  │  │  (RAG + Planning)  │  │ (Procurement + QA)  │
+   └──────────────────────┘  └────────────────────┘  └─────────────────────┘
+                                       │
+              ┌────────────────────────┼────────────────────────┐
+              │                                                 │
+   ┌──────────▼──────────┐                          ┌──────────▼──────────┐
+   │   Pricing Agent      │                          │  Monitoring Agent   │
+   │ (Cost Optimization)  │                          │ (Risk + Auto-Replan)│
+   └──────────────────────┘                          └─────────────────────┘
+                                       │
+                              ┌─────────▼─────────┐
+                              │  Recovery Loop     │
+                              │ (Autonomous Replan)│
+                              └───────────────────┘
+```
+
+---
+
+## Agent Team
+
+| Agent | Responsibility | Model |
+|-------|---------------|-------|
+| **Orchestrator** | Workflow coordination, state management, recovery triggers | NVIDIA Nemotron-4 340B |
+| **Intake Agent** | Natural language understanding → structured event profile | Meta Llama 3.1 70B |
+| **Menu Agent** | RAG-powered menu planning from Azure AI Search knowledge base | Meta Llama 3.1 70B |
+| **Inventory Agent** | Ingredient calculation, supplier matching, shortage detection | Meta Llama 3.1 8B |
+| **Pricing Agent** | Full cost breakdown, margin analysis, budget feasibility | Meta Llama 3.1 8B |
+| **Monitoring Agent** | Risk audit across 9 dimensions, autonomous re-plan trigger | Meta Llama 3.1 70B |
+
+---
+
+## Microsoft Azure Integration
+
+| Azure Service | Usage |
+|---------------|-------|
+| **Azure AI Search** | Semantic search over catering knowledge base (dishes, suppliers, dietary rules, event templates). Powers the Menu Agent's RAG pipeline with semantic ranking. |
+| **Azure Cosmos DB** | Shared agent memory — all agents read/write a single `EventState` document. Provides the coordination layer for multi-agent state handoffs. |
+| **Azure Identity** | Authentication layer for all Azure service connections. |
+
+---
+
+## NVIDIA NIM Integration
+
+| Component | Usage |
+|-----------|-------|
+| **NVIDIA NIM API** | All LLM inference runs through NVIDIA NIM endpoints (OpenAI-compatible). Supports Nemotron-4 340B and Llama 3.1 family. |
+| **NVIDIA Riva ASR** | Voice input via Parakeet streaming ASR model — users can speak their catering request instead of typing. |
 
 ---
 
 ## Key Features
 
-- ✅ **True multi-agent orchestration** — 5 agents with distinct roles, structured JSON handoffs
-- ✅ **RAG-grounded outputs** — Menu Agent queries Azure AI Search knowledge base (25 dishes, 12 suppliers, 8 dietary rules, 6 event templates)
-- ✅ **Shared memory** — All agents read/write a single EventState document in Cosmos DB
-- ✅ **Autonomous recovery** — Monitoring Agent detects failures (shortages, budget conflicts) and triggers automatic re-planning
-- ✅ **Live agent log** — Every agent action is visible in real-time in the UI
-- ✅ **Model-agnostic** — Swap NVIDIA NIM for Azure OpenAI in one config line
+- **Multi-Agent Orchestration** — 5 agents with distinct roles, structured JSON handoffs, shared state via Cosmos DB
+- **RAG-Grounded Menu Planning** — Azure AI Search with semantic ranking over curated knowledge base (dishes, suppliers, dietary rules)
+- **Autonomous Recovery Loop** — Monitoring Agent detects failures and triggers re-planning without human intervention
+- **Voice-First Input** — NVIDIA Riva Parakeet ASR for natural speech-to-plan workflow
+- **Region-Aware Pricing** — Automatic cost profile selection across 8 global regions (Singapore, US, UK, UAE, Australia, Europe, India, Southeast Asia)
+- **Smart Budget Optimization** — Best adjusted to quotations under customer budget and also dynamically adjusts margins
+- **PDF Export** — One-click professional catering plan generation for client sharing
+- **Restaurant Profile** — Configurable business profile (capacity, certifications, cuisine types) that influences plan generation
+- **Event History** — SQLite-backed event tracking with full plan persistence
+- **Real-Time Agent Logs** — Live visibility into every agent decision and handoff
+- **9-Dimension Risk Audit** — Budget, inventory, dietary, allergen, timeline, margin, portions, supplier reliability, halal compliance
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Agent Framework | **Microsoft AutoGen** (multi-agent orchestration) |
+| LLM Inference | **NVIDIA NIM** (Nemotron-4 340B, Llama 3.1 70B/8B) |
+| Knowledge Retrieval | **Azure AI Search** (semantic ranking, filtered queries) |
+| Agent State Store | **Azure Cosmos DB** (shared EventState document) |
+| Voice Input | **NVIDIA Riva ASR** (Parakeet streaming model) |
+| Frontend | **Streamlit** (real-time updates, animated pipeline progress) |
+| Data Validation | **Pydantic v2** (typed EventState schema) |
+| PDF Generation | **FPDF2** (branded report export) |
+| Language | **Python 3.11+** (fully async pipeline) |
 
 ---
 
@@ -54,32 +125,30 @@ A team of **5 specialized AI agents** collaborate in real-time to convert a cust
 
 ### Prerequisites
 - Python 3.11+
-- Azure account (free tier sufficient for AI Search + Cosmos DB)
+- Azure account (AI Search + Cosmos DB)
+- NVIDIA NIM API key
 
 ### Setup
 
 ```bash
-# 1. Clone the repo
 git clone https://github.com/smilewithkhushi/orchefai
 cd orchefai
 
-# 2. Create and activate a virtual environment
 python3 -m venv venv
 source venv/bin/activate
 
-# 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Set up environment variables
 cp .env.example .env
-# Then edit .env with your actual keys:
-#   - AZURE_SEARCH_ENDPOINT / AZURE_SEARCH_API_KEY
-#   - COSMOS_ENDPOINT / COSMOS_KEY
+# Configure:
+#   NVIDIA_API_KEY
+#   AZURE_SEARCH_ENDPOINT / AZURE_SEARCH_API_KEY
+#   COSMOS_ENDPOINT / COSMOS_KEY
 
-# 5. Index the knowledge base into Azure AI Search
+# Index knowledge base into Azure AI Search
 python setup/index_knowledge_base.py
 
-# 6. Run the app
+# Launch
 streamlit run app.py
 ```
 
@@ -87,54 +156,87 @@ streamlit run app.py
 
 ## Demo Scenarios
 
-### Scenario 1 — Happy Path
+### 1. Standard Flow
 ```
-"Plan a halal vegetarian lunch for 150 guests at our office next Thursday, budget $6,000"
+"We need a vegetarian corporate lunch for 150 people at our Raffles Place office next Thursday. Budget is around 8,000 SGD, must be halal certified."
 ```
-→ Full pipeline runs, complete catering plan generated
+Full pipeline executes → complete catering plan in ~25 seconds.
 
-### Scenario 2 — Recovery Loop (The Wow Moment)
+### 2. Autonomous Recovery (Key Differentiator)
 ```
-"Halal dinner for 200 guests this Saturday, $12,000 budget"
+"Halal dinner for 200 guests this Saturday in Delhi, budget ₹4,00,000"
 ```
-→ Inventory Agent detects lamb shortage (only 120 portions available)
-→ Monitoring Agent flags HIGH RISK
-→ System auto-replans with chicken/tofu substitution
-→ New plan delivered with updated cost breakdown
+- Inventory Agent detects lamb shortage (only 120 portions available from suppliers)
+- Monitoring Agent flags HIGH RISK
+- System **auto-replans** with chicken/tofu substitution
+- Revised plan delivered with updated cost breakdown — zero human intervention
 
-### Scenario 3 — Budget Conflict
-```
-"Premium gala dinner for 100 guests, budget $10,000"
-```
-→ Pricing Agent calculates actual cost: $15,000
-→ Monitoring Agent flags budget shortfall
-→ System suggests either budget revision or simplified menu options
+### 3. Voice Input
+User speaks: *"I need a birthday party menu for 50 people, vegetarian, budget around two thousand dollars"*
+- NVIDIA Riva transcribes speech → text
+- Intake Agent structures the request
+- Full pipeline executes autonomously
 
 ---
 
-## Market Context
+## Project Structure
+
+```
+orchefai/
+├── app.py                     # Streamlit UI with real-time pipeline visualization
+├── config.py                  # Agent models, cost profiles, staffing logic, API clients
+├── agents/
+│   ├── orchestrator.py        # Pipeline coordinator with recovery loop
+│   ├── intake_agent.py        # NLU → structured event profile
+│   ├── menu_agent.py          # RAG-powered menu planning
+│   ├── inventory_agent.py     # Ingredient + procurement calculation
+│   ├── pricing_agent.py       # Cost breakdown + budget feasibility
+│   ├── monitoring_agent.py    # 9-dimension risk audit
+│   └── prompts.py             # All agent system prompts
+├── models/
+│   ├── event_state.py         # Pydantic EventState schema (shared memory)
+│   └── restaurant.py          # Restaurant profile model
+├── tools/
+│   ├── cosmos_tool.py         # Azure Cosmos DB read/write
+│   ├── search_tool.py         # Azure AI Search queries
+│   ├── pdf_export.py          # PDF catering plan generation
+│   └── history_db.py          # Event history persistence
+├── utils/
+│   ├── transcribe.py          # NVIDIA Riva ASR integration
+│   ├── currency.py            # Multi-currency conversion
+│   └── audio_storage.py       # Audio recording handling
+├── setup/
+│   └── index_knowledge_base.py # Azure AI Search indexing script
+├── data/                       # Local knowledge base (menus, suppliers, rules)
+└── pages/                      # Streamlit multi-page app
+    ├── 1_Restaurant_Profile.py
+    └── 2_Event_History.py
+```
+
+---
+
+## What Makes This Different
+
+| Approach | Traditional Catering Software | OrchefAI |
+|----------|------------------------------|----------|
+| Input | Forms and dropdowns | Natural language (text + voice) |
+| Planning | Manual by human staff | Autonomous multi-agent pipeline |
+| Recovery | Manual escalation | Auto-replan on risk detection |
+| Knowledge | Static database | RAG over semantic knowledge base |
+| Pricing | Fixed price lists | Dynamic region-aware cost optimization |
+| Risk | Post-hoc review | Real-time 9-dimension audit |
+
+---
+
+## Market Opportunity
 
 - **$2.14B** catering software market (2024), growing at **13.2% CAGR**
-- **20 hours/week** saved per catering operations manager
+- **20+ hours/week** saved per operations manager per event
 - **$8 ROI** for every $1 invested in catering waste reduction (NRA)
-- **Zero** production-grade multi-agent AI systems exist for this space today
+- Zero production-grade multi-agent AI systems exist in this vertical
 
 ---
 
-## Architecture
+## License
 
-```
-User Input (NL)
-      ↓
- IntakeAgent → EventState.customer (Cosmos DB)
-      ↓
- [MenuAgent ║ InventoryAgent] → Parallel execution
-      ↓
- PricingAgent → Cost breakdown + margin
-      ↓
- MonitoringAgent → Risk check
-      ↓ (if HIGH risk)
- [Recovery Loop] → Re-run Menu + Inventory with constraints
-      ↓
- Final Catering Plan (JSON + human-readable)
-```
+MIT

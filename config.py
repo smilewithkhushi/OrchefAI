@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import AsyncOpenAI
 
 load_dotenv()
 
@@ -39,7 +39,7 @@ COST_PROFILES = {
         "packaging_cost_per_guest_usd": 1.50,
         "default_distance_km": 15,
         "overhead_percentage": 0.10,
-        "min_margin_percentage": 0.20,
+        "min_margin_percentage": 0.30,
         "currency_note": "SGD converted at ~0.75 USD",
     },
     "india": {
@@ -49,7 +49,7 @@ COST_PROFILES = {
         "packaging_cost_per_guest_usd": 0.50,
         "default_distance_km": 20,
         "overhead_percentage": 0.10,
-        "min_margin_percentage": 0.20,
+        "min_margin_percentage": 0.30,
         "currency_note": "INR converted at ~0.012 USD",
     },
     "usa": {
@@ -59,7 +59,7 @@ COST_PROFILES = {
         "packaging_cost_per_guest_usd": 2.00,
         "default_distance_km": 25,
         "overhead_percentage": 0.12,
-        "min_margin_percentage": 0.20,
+        "min_margin_percentage": 0.30,
         "currency_note": "USD",
     },
     "uk": {
@@ -69,7 +69,7 @@ COST_PROFILES = {
         "packaging_cost_per_guest_usd": 1.80,
         "default_distance_km": 20,
         "overhead_percentage": 0.12,
-        "min_margin_percentage": 0.20,
+        "min_margin_percentage": 0.30,
         "currency_note": "GBP converted at ~1.27 USD",
     },
     "uae": {
@@ -79,7 +79,7 @@ COST_PROFILES = {
         "packaging_cost_per_guest_usd": 1.80,
         "default_distance_km": 20,
         "overhead_percentage": 0.10,
-        "min_margin_percentage": 0.20,
+        "min_margin_percentage": 0.30,
         "currency_note": "AED converted at ~0.27 USD",
     },
     "australia": {
@@ -89,7 +89,7 @@ COST_PROFILES = {
         "packaging_cost_per_guest_usd": 1.80,
         "default_distance_km": 20,
         "overhead_percentage": 0.12,
-        "min_margin_percentage": 0.20,
+        "min_margin_percentage": 0.30,
         "currency_note": "AUD converted at ~0.65 USD",
     },
     "europe": {
@@ -99,7 +99,7 @@ COST_PROFILES = {
         "packaging_cost_per_guest_usd": 1.60,
         "default_distance_km": 20,
         "overhead_percentage": 0.12,
-        "min_margin_percentage": 0.20,
+        "min_margin_percentage": 0.30,
         "currency_note": "EUR converted at ~1.09 USD",
     },
     "southeast_asia": {
@@ -109,7 +109,7 @@ COST_PROFILES = {
         "packaging_cost_per_guest_usd": 0.80,
         "default_distance_km": 15,
         "overhead_percentage": 0.10,
-        "min_margin_percentage": 0.20,
+        "min_margin_percentage": 0.30,
         "currency_note": "Local currency converted to USD",
     },
     "default": {
@@ -119,7 +119,7 @@ COST_PROFILES = {
         "packaging_cost_per_guest_usd": 1.50,
         "default_distance_km": 20,
         "overhead_percentage": 0.10,
-        "min_margin_percentage": 0.20,
+        "min_margin_percentage": 0.30,
         "currency_note": "USD (global average rates)",
     },
 }
@@ -180,6 +180,7 @@ def calculate_staffing(
     service_style: str | None,
     event_type: str | None,
     venue: str | None,
+    event_duration_hours: float | None = None,
 ) -> dict:
     """Calculate staff count and total labor cost based on event parameters.
 
@@ -198,7 +199,7 @@ def calculate_staffing(
 
     total_staff = servers + chefs + head_chef + supervisor + dishwashers
 
-    event_hours = EVENT_DURATION_HOURS.get(event_type, 5)
+    event_hours = event_duration_hours or EVENT_DURATION_HOURS.get(event_type, 5)
 
     cost_profile = get_cost_profile(venue)
     hourly_rate = cost_profile["staff_hourly_rate_usd"]
@@ -221,17 +222,23 @@ def calculate_staffing(
     }
 
 
-def _get_client() -> OpenAI:
-    return OpenAI(api_key=NVIDIA_API_KEY, base_url=NVIDIA_BASE_URL)
+_async_client: AsyncOpenAI | None = None
+
+
+def _get_client() -> AsyncOpenAI:
+    global _async_client
+    if _async_client is None:
+        _async_client = AsyncOpenAI(api_key=NVIDIA_API_KEY, base_url=NVIDIA_BASE_URL)
+    return _async_client
 
 
 async def call_agent(system_prompt: str, user_message: str, model_key: str) -> str:
-    """Call an LLM agent via NVIDIA NIM (OpenAI-compatible API)."""
+    """Call an LLM agent via NVIDIA NIM (async, connection-reusing)."""
     model = AGENT_MODELS[model_key]
     print(f"[OrchefAI] Calling {model_key} agent ({model})...", flush=True)
     client = _get_client()
     try:
-        response = client.chat.completions.create(
+        response = await client.chat.completions.create(
             model=model,
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -246,3 +253,23 @@ async def call_agent(system_prompt: str, user_message: str, model_key: str) -> s
     except Exception as e:
         print(f"[OrchefAI] ERROR in {model_key} agent: {e}", flush=True)
         raise
+
+
+async def stream_agent(system_prompt: str, user_message: str, model_key: str):
+    """Yield content chunks as they stream from the LLM."""
+    model = AGENT_MODELS[model_key]
+    print(f"[OrchefAI] Streaming {model_key} agent ({model})...", flush=True)
+    client = _get_client()
+    stream = await client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message},
+        ],
+        temperature=0.3,
+        max_tokens=4096,
+        stream=True,
+    )
+    async for chunk in stream:
+        if chunk.choices and chunk.choices[0].delta.content:
+            yield chunk.choices[0].delta.content

@@ -9,10 +9,36 @@ async def run_monitoring(state: EventState) -> EventState:
     """Audit the complete EventState for risks and trigger re-plan if needed."""
     start = time.time()
     try:
-        full_state = state.model_dump_json(indent=2)
+        audit_data = {
+            "customer": {
+                "guest_count": state.customer.guest_count,
+                "budget_usd": state.customer.budget_usd,
+                "dietary_requirements": state.customer.dietary_requirements,
+                "event_type": state.customer.event_type,
+                "event_date": state.customer.event_date,
+                "event_time": state.customer.event_time,
+                "venue": state.customer.venue,
+            },
+            "menu_items": [
+                {
+                    "dish_name": i.dish_name,
+                    "category": i.category,
+                    "portions_required": i.portions_required,
+                    "cost_per_portion_usd": i.cost_per_portion_usd,
+                    "dietary_tags": i.dietary_tags,
+                }
+                for i in state.menu.items
+            ],
+            "costs": state.pricing.cost_breakdown.model_dump() if state.pricing.cost_breakdown else {},
+            "suggested_price_usd": state.pricing.suggested_price_usd,
+            "margin_percentage": state.pricing.margin_percentage,
+            "budget_feasible": state.pricing.budget_feasible,
+            "shortages": [s.model_dump() if hasattr(s, "model_dump") else s for s in state.inventory.shortages],
+            "total_ingredient_cost_usd": state.inventory.total_ingredient_cost_usd,
+        }
 
-        user_msg = f"""COMPLETE EVENT STATE FOR AUDIT:
-{full_state}
+        user_msg = f"""EVENT AUDIT DATA:
+{json.dumps(audit_data, indent=2)}
 
 Perform a full risk audit. Check budget, inventory shortages, dietary compliance, timeline, margins, and supplier reliability. Return your risk assessment."""
 

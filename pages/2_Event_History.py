@@ -89,7 +89,10 @@ else:
                         st.markdown(f'<p class="detail-label">Event Date</p><p class="detail-value">{state.customer.event_date or "N/A"}</p>', unsafe_allow_html=True)
                     with ov2:
                         st.markdown(f'<p class="detail-label">Guest Count</p><p class="detail-value">{state.customer.guest_count or "N/A"}</p>', unsafe_allow_html=True)
-                        st.markdown(f'<p class="detail-label">Event Time</p><p class="detail-value">{state.customer.event_time or "N/A"}</p>', unsafe_allow_html=True)
+                        time_display = state.customer.event_time or "N/A"
+                        if getattr(state.customer, "event_end_time", None):
+                            time_display = f"{state.customer.event_time} – {state.customer.event_end_time}"
+                        st.markdown(f'<p class="detail-label">Service Time</p><p class="detail-value">{time_display}</p>', unsafe_allow_html=True)
                     with ov3:
                         st.markdown(f'<p class="detail-label">Venue</p><p class="detail-value">{state.customer.venue or "N/A"}</p>', unsafe_allow_html=True)
                         st.markdown(f'<p class="detail-label">Setting</p><p class="detail-value">{(state.customer.indoor_outdoor or "N/A").title()}</p>', unsafe_allow_html=True)
