@@ -4,6 +4,7 @@ from utils.transcribe import transcribe_audio
 from utils.audio_storage import save_audio
 import asyncio
 import textwrap
+from html import escape as esc
 from tools.pdf_export import generate_pdf
 from agents.orchestrator import run_pipeline, run_intake_only, run_pipeline_from_state, validate_intake
 from models.event_state import (
@@ -12,26 +13,28 @@ from models.event_state import (
     LogisticsTask, MonitoringData, Risk, AgentLogEntry,
 )
 
-st.set_page_config(page_title="OrchefAI", layout="wide", page_icon="🍽️")
+st.set_page_config(page_title="Home — OrchefAI", layout="wide", page_icon="🍽️")
 
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
 
-.block-container { padding-top: 1rem; max-width: 1200px; }
+.block-container { padding-top: 1.5rem; max-width: 1200px; }
 h1, h2, h3 { font-family: 'Playfair Display', serif !important; }
 
 /* Hero */
-.hero { text-align: center; padding: 0.8rem 0 0.5rem 0; }
-.hero h1 {
+.hero { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; }
+.hero img { height: 80px; }
+.hero .hero-text h1 {
     font-size: 2.2rem;
     background: linear-gradient(135deg, #C9A962 0%, #E8D5A3 50%, #C9A962 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 0.1rem;
+    margin: 0;
     letter-spacing: 1px;
+    line-height: 1.1;
 }
-.hero p { color: #6B7280; font-size: 0.88rem; font-family: 'Inter', sans-serif; letter-spacing: 0.5px; }
+.hero .hero-text p { color: #6B7280; font-size: 0.82rem; font-family: 'Inter', sans-serif; letter-spacing: 0.5px; margin: 0; }
 
 /* Cards */
 .card {
@@ -138,7 +141,8 @@ h1, h2, h3 { font-family: 'Playfair Display', serif !important; }
 .stepper-label.waiting { color: #4B5563; }
 
 /* ── Results panel ── */
-.results-section { margin-top: 2rem; margin-bottom: 1.5rem; }
+.results-section { margin-top: 1.5rem; margin-bottom: 1rem; }
+.section-divider { border: none; border-top: 1px solid #2A231E; margin: 1.2rem 0; }
 .section-num {
     display: inline-flex; align-items: center; justify-content: center;
     width: 26px; height: 26px; border-radius: 50%;
@@ -156,30 +160,28 @@ h1, h2, h3 { font-family: 'Playfair Display', serif !important; }
 }
 
 /* Risk badges */
+.risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
 .risk-critical, .risk-high {
     background: rgba(220, 38, 38, 0.1);
     border: 1px solid rgba(220, 38, 38, 0.25);
     border-radius: 10px;
-    padding: 0.8rem 1.2rem;
-    margin-bottom: 0.5rem;
+    padding: 0.7rem 1rem;
 }
 .risk-medium {
     background: rgba(234, 179, 8, 0.08);
     border: 1px solid rgba(234, 179, 8, 0.2);
     border-radius: 10px;
-    padding: 0.8rem 1.2rem;
-    margin-bottom: 0.5rem;
+    padding: 0.7rem 1rem;
 }
 .risk-low {
     background: rgba(34, 197, 94, 0.08);
     border: 1px solid rgba(34, 197, 94, 0.2);
     border-radius: 10px;
-    padding: 0.8rem 1.2rem;
-    margin-bottom: 0.5rem;
+    padding: 0.7rem 1rem;
 }
-.risk-label { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.78rem; letter-spacing: 0.5px; }
-.risk-desc { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #D1D5DB; margin-top: 4px; line-height: 1.5; }
-.risk-action { font-family: 'Inter', sans-serif; font-size: 0.78rem; color: #9CA3AF; margin-top: 6px; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 6px; }
+.risk-label { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.72rem; letter-spacing: 0.5px; }
+.risk-desc { font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #D1D5DB; margin-top: 4px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.risk-action { font-family: 'Inter', sans-serif; font-size: 0.72rem; color: #9CA3AF; margin-top: 4px; }
 
 /* Shortage row */
 .shortage-row {
@@ -214,7 +216,7 @@ h1, h2, h3 { font-family: 'Playfair Display', serif !important; }
     border-bottom: 2px solid #2A231E;
 }
 .menu-table td {
-    padding: 0.7rem 1rem;
+    padding: 0.55rem 1rem;
     border-bottom: 1px solid rgba(42, 35, 30, 0.6);
     color: #D1D5DB;
 }
@@ -255,12 +257,7 @@ div.stButton > button[kind="secondary"]:hover {
     color: #C9A962 !important;
 }
 
-/* Divider */
-.section-divider {
-    border: none;
-    border-top: 1px solid #2A231E;
-    margin: 1.5rem 0;
-}
+/* Divider — defined in results panel section above */
 
 /* Loader */
 .loader-container {
@@ -311,8 +308,11 @@ header { visibility: hidden; }
 # --- Header ---
 st.markdown("""
 <div class="hero">
-    <h1>OrchefAI</h1>
-    <p>Multi-Agent Catering Operations System</p>
+    <img src="app/static/logo.png" alt="OrchefAI" />
+    <div class="hero-text">
+        <h1>OrchefAI</h1>
+        <p>Multi-Agent Catering Operations System</p>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -643,7 +643,9 @@ def render_loader(placeholder, is_regen=False, step_index=0):
 
 # --- Render: results panel ---
 def _html(content: str):
-    st.markdown(textwrap.dedent(content), unsafe_allow_html=True)
+    lines = textwrap.dedent(content).splitlines()
+    cleaned = "\n".join(ln.strip() for ln in lines if ln.strip())
+    st.markdown(cleaned, unsafe_allow_html=True)
 
 
 def render_results_panel(state, placeholder):
@@ -663,13 +665,13 @@ def render_results_panel(state, placeholder):
         status_map = {"complete": ("#22C55E", "APPROVED"), "needs_review": ("#EAB308", "NEEDS REVIEW")}
         status_color, status_label = status_map.get(state.status, ("#60A5FA", state.status.replace("_", " ").upper()))
 
-        event_type = (state.customer.event_type or "N/A").replace("_", " ").title()
-        date_str = state.customer.event_date or "TBD"
-        time_str = state.customer.event_time or ""
+        event_type = esc((state.customer.event_type or "N/A").replace("_", " ").title())
+        date_str = esc(state.customer.event_date or "TBD")
+        time_str = esc(state.customer.event_time or "")
         if state.customer.event_end_time:
-            time_str = f"{time_str} – {state.customer.event_end_time}"
-        venue = state.customer.venue or "Not specified"
-        dietary = ", ".join(d.title() for d in state.customer.dietary_requirements) if state.customer.dietary_requirements else "None specified"
+            time_str = f"{time_str} – {esc(state.customer.event_end_time)}"
+        venue = esc(state.customer.venue or "Not specified")
+        dietary = ", ".join(esc(d.title()) for d in state.customer.dietary_requirements) if state.customer.dietary_requirements else "None specified"
         guest_count = state.customer.guest_count or 0
 
         _html(f"""
@@ -794,7 +796,7 @@ def render_results_panel(state, placeholder):
                 if state.pricing.optimization_suggestions:
                     savings_html = ""
                     for sug in state.pricing.optimization_suggestions:
-                        label = sug.get("suggestion", "")
+                        label = esc(sug.get("suggestion", ""))
                         saving = sug.get("estimated_saving_usd", 0)
                         savings_html += f"""
                         <div style="display:flex; justify-content:space-between; align-items:center;
@@ -840,6 +842,7 @@ def render_results_panel(state, placeholder):
         # ==============================================================
         if state.pricing.cost_breakdown.total_cost_usd > 0:
             _html("""
+            <hr class="section-divider" />
             <div class="results-section">
                 <div class="section-title"><span class="section-num">2</span>Cost Breakdown</div>
                 <div class="section-subtitle">Where your money goes</div>
@@ -859,18 +862,20 @@ def render_results_panel(state, placeholder):
             bar_html = ""
             for label, amount, color in cost_items:
                 pct = (amount / total * 100) if total > 0 else 0
+                pct_label = f'<span style="font-size:0.68rem; font-weight:600; color:#0E1117; padding-left:8px;">{pct:.0f}%</span>' if pct > 12 else ""
+                pct_outside = f'<span style="font-size:0.68rem; font-weight:600; color:{color}; margin-left:6px; flex-shrink:0;">{pct:.0f}%</span>' if pct <= 12 else ""
                 bar_html += f"""
-                <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px; font-family:Inter,sans-serif;">
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px; font-family:Inter,sans-serif;">
                     <div style="width:8px; height:8px; border-radius:50%; background:{color}; flex-shrink:0;"></div>
-                    <div style="width:150px; font-size:0.82rem; color:#D1D5DB; flex-shrink:0;">{label}</div>
-                    <div style="flex:1; background:rgba(42,35,30,0.5); border-radius:8px; height:28px; overflow:hidden;">
+                    <div style="width:140px; font-size:0.82rem; color:#D1D5DB; flex-shrink:0;">{label}</div>
+                    <div style="flex:1; background:rgba(42,35,30,0.5); border-radius:8px; height:26px; overflow:hidden;">
                         <div style="width:{max(pct, 1.5):.1f}%; height:100%; background:{color}; border-radius:8px;
-                                    display:flex; align-items:center; padding-left:8px;">
-                            <span style="font-size:0.68rem; font-weight:600; color:#0E1117;
-                                        opacity:{1 if pct > 8 else 0};">{pct:.0f}%</span>
+                                    display:flex; align-items:center;">
+                            {pct_label}
                         </div>
                     </div>
-                    <div style="width:80px; text-align:right; font-size:0.85rem; font-weight:600; color:#FAFAFA;
+                    {pct_outside}
+                    <div style="width:75px; text-align:right; font-size:0.82rem; font-weight:600; color:#FAFAFA;
                                 flex-shrink:0;">${amount:,.0f}</div>
                 </div>"""
 
@@ -894,6 +899,7 @@ def render_results_panel(state, placeholder):
         if state.menu.items:
             total_menu_cost = sum(i.cost_per_portion_usd * i.portions_required for i in state.menu.items)
             _html(f"""
+            <hr class="section-divider" />
             <div class="results-section">
                 <div class="section-title"><span class="section-num">3</span>Menu</div>
                 <div class="section-subtitle">{len(state.menu.items)} dishes &middot;
@@ -908,48 +914,43 @@ def render_results_panel(state, placeholder):
 
             for cat, items in categories.items():
                 cat_total = sum(i.cost_per_portion_usd * i.portions_required for i in items)
-                _html(f"""
-                <div style="display:flex; justify-content:space-between; align-items:center;
-                            margin-top:16px; margin-bottom:8px; padding-bottom:6px;
-                            border-bottom:1px solid rgba(42,35,30,0.6);">
-                    <span style="font-family:Inter,sans-serif; font-weight:600; font-size:0.75rem;
-                                 text-transform:uppercase; letter-spacing:1.2px; color:#6B7280;">{cat}</span>
-                    <span style="font-family:Inter,sans-serif; font-size:0.75rem; color:#4B5563;">
-                        ${cat_total:,.0f}
-                    </span>
-                </div>
-                """)
+                rows_html = ""
                 for item in items:
-                    tags = "".join(f'<span class="tag">{t}</span>' for t in item.dietary_tags)
+                    tags = "".join(f'<span class="tag">{esc(t)}</span>' for t in item.dietary_tags)
                     item_total = item.cost_per_portion_usd * item.portions_required
-                    _html(f"""
-                    <div style="background:#1C1714; border:1px solid #2A231E; border-radius:10px;
-                                padding:0.75rem 1rem; margin-bottom:5px; font-family:Inter,sans-serif;">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                                <span style="font-weight:600; color:#FAFAFA; font-size:0.88rem;">{item.dish_name}</span>
-                                {tags}
-                            </div>
-                            <span style="font-weight:600; color:#C9A962; font-size:0.82rem; white-space:nowrap;
-                                        margin-left:12px;">${item_total:,.0f}</span>
-                        </div>
-                        <div style="font-size:0.75rem; color:#4B5563; margin-top:3px;">
-                            {item.portions_required} portions &middot; ${item.cost_per_portion_usd:.2f}/ea
-                        </div>
-                    </div>
-                    """)
+                    rows_html += f"""<tr>
+                        <td style="font-weight:500; color:#FAFAFA;">{esc(item.dish_name)} {tags}</td>
+                        <td style="text-align:center;">{item.portions_required}</td>
+                        <td style="text-align:right;">${item.cost_per_portion_usd:.2f}</td>
+                        <td style="text-align:right; font-weight:600; color:#C9A962;">${item_total:,.0f}</td>
+                    </tr>"""
+                _html(f"""
+                <div style="font-family:Inter,sans-serif; font-weight:600; font-size:0.72rem;
+                            text-transform:uppercase; letter-spacing:1.2px; color:#6B7280;
+                            margin-top:12px; margin-bottom:6px; display:flex; justify-content:space-between;">
+                    <span>{esc(cat)}</span><span style="color:#4B5563;">${cat_total:,.0f}</span>
+                </div>
+                <table class="menu-table">
+                    <thead><tr>
+                        <th>Dish</th><th style="text-align:center;">Portions</th>
+                        <th style="text-align:right;">Unit</th><th style="text-align:right;">Total</th>
+                    </tr></thead>
+                    <tbody>{rows_html}</tbody>
+                </table>
+                """)
 
             if state.menu.warnings:
-                for w in state.menu.warnings:
-                    _html(f"""
-                    <div style="background:rgba(234,179,8,0.06); border:1px solid rgba(234,179,8,0.18);
-                                border-radius:10px; padding:0.7rem 1rem; margin-top:10px;
-                                font-family:Inter,sans-serif; font-size:0.82rem; color:#EAB308;
-                                display:flex; align-items:flex-start; gap:8px;">
-                        <span style="flex-shrink:0; margin-top:1px;">&#9888;</span>
-                        <span>{w}</span>
-                    </div>
-                    """)
+                warnings_html = "".join(
+                    f'<div style="display:flex; align-items:flex-start; gap:8px; padding:0.5rem 0; border-bottom:1px solid rgba(234,179,8,0.1);"><span style="flex-shrink:0;">&#9888;</span><span>{esc(w)}</span></div>'
+                    for w in state.menu.warnings
+                )
+                _html(f"""
+                <div style="background:rgba(234,179,8,0.06); border:1px solid rgba(234,179,8,0.18);
+                            border-radius:10px; padding:0.6rem 1rem; margin-top:10px;
+                            font-family:Inter,sans-serif; font-size:0.82rem; color:#EAB308;">
+                    {warnings_html}
+                </div>
+                """)
 
         # ==============================================================
         # SECTION 4: PROCUREMENT
@@ -958,6 +959,7 @@ def render_results_panel(state, placeholder):
             total_procurement = sum(p.total_cost_usd for p in state.inventory.procurement_list)
             confirmed_count = sum(1 for p in state.inventory.procurement_list if p.availability == "confirmed")
             _html(f"""
+            <hr class="section-divider" />
             <div class="results-section">
                 <div class="section-title"><span class="section-num">4</span>Procurement</div>
                 <div class="section-subtitle">{len(state.inventory.procurement_list)} items &middot;
@@ -971,13 +973,13 @@ def render_results_panel(state, placeholder):
                 avail_color = avail_colors.get(p.availability, "#6B7280")
                 avail_icon = "&#10003;" if p.availability == "confirmed" else "&#9679;" if p.availability == "partial" else "&#10007;"
                 rows_html += f"""<tr>
-                    <td style="font-weight:500; color:#FAFAFA;">{p.ingredient}</td>
-                    <td style="white-space:nowrap;">{p.quantity_required:.1f} {p.unit}</td>
-                    <td style="color:#9CA3AF;">{p.supplier_name}</td>
+                    <td style="font-weight:500; color:#FAFAFA;">{esc(p.ingredient)}</td>
+                    <td style="white-space:nowrap;">{p.quantity_required:.1f} {esc(p.unit)}</td>
+                    <td style="color:#9CA3AF;">{esc(p.supplier_name)}</td>
                     <td style="text-align:right; font-weight:600;">${p.total_cost_usd:,.0f}</td>
                     <td style="text-align:center;">
-                        <span style="color:{avail_color}; font-size:0.78rem; font-weight:600;">
-                            {avail_icon} {p.availability.title()}
+                        <span style="color:{avail_color}; font-size:0.72rem; font-weight:600;">
+                            {avail_icon} {esc(p.availability.title())}
                         </span>
                     </td>
                 </tr>"""
@@ -997,56 +999,63 @@ def render_results_panel(state, placeholder):
         # ==============================================================
         if state.logistics.preparation_timeline:
             _html(f"""
+            <hr class="section-divider" />
             <div class="results-section">
-                <div class="section-title"><span class="section-num">5</span>Logistics & Timeline</div>
+                <div class="section-title"><span class="section-num">5</span>Logistics &amp; Timeline</div>
                 <div class="section-subtitle">{len(state.logistics.preparation_timeline)} tasks &middot;
                     {state.logistics.total_prep_hours:.1f}h total prep &middot;
                     {len(state.logistics.delivery_schedule)} deliveries</div>
             </div>
             """)
 
+            assigned_colors = {"kitchen_staff": "#F59E0B", "service_staff": "#3B82F6", "logistics": "#8B5CF6", "vendor": "#10B981"}
             timeline_html = ""
             for t in state.logistics.preparation_timeline:
-                assigned_colors = {"kitchen_staff": "#F59E0B", "service_staff": "#3B82F6", "logistics": "#8B5CF6", "vendor": "#10B981"}
                 a_color = assigned_colors.get(t.assigned_to, "#6B7280")
                 timeline_html += f"""<tr>
-                    <td style="font-weight:500; color:#FAFAFA;">{t.task}</td>
-                    <td style="white-space:nowrap;">{t.start_time} – {t.end_time}</td>
-                    <td><span style="color:{a_color}; font-size:0.75rem; font-weight:600;
+                    <td style="border-left:3px solid {a_color}; font-weight:500; color:#FAFAFA;">{esc(t.task)}</td>
+                    <td style="white-space:nowrap;">{esc(t.start_time)} – {esc(t.end_time)}</td>
+                    <td><span style="color:{a_color}; font-size:0.7rem; font-weight:600;
                                padding:2px 8px; background:{a_color}15; border-radius:12px;">
-                        {t.assigned_to.replace('_', ' ').title()}</span></td>
+                        {esc(t.assigned_to.replace('_', ' ').title())}</span></td>
                     <td style="text-align:center;">{t.duration_hours:.1f}h</td>
                 </tr>"""
 
             _html(f"""
             <table class="menu-table">
                 <thead><tr>
-                    <th>Task</th><th>Time</th><th>Assigned To</th><th style="text-align:center;">Duration</th>
+                    <th>Task</th><th>Time</th><th>Team</th><th style="text-align:center;">Hrs</th>
                 </tr></thead>
                 <tbody>{timeline_html}</tbody>
             </table>
             """)
 
             if state.logistics.delivery_schedule:
-                del_html = ""
+                del_cards = ""
                 for d in state.logistics.delivery_schedule:
                     v_type = d.get("vehicle_type", "van")
                     v_color = "#3B82F6" if v_type == "cold_van" else "#F59E0B"
-                    del_html += f"""<tr>
-                        <td style="font-weight:500; color:#FAFAFA;">{d.get('item_type', '')}</td>
-                        <td>{d.get('departure_time', '')}</td>
-                        <td>{d.get('arrival_time', '')}</td>
-                        <td><span style="color:{v_color}; font-size:0.75rem; font-weight:600;">
-                            {v_type.replace('_', ' ').title()}</span></td>
-                    </tr>"""
+                    v_icon = "&#10052;" if v_type == "cold_van" else "&#9898;"
+                    del_cards += f"""
+                    <div style="background:#1C1714; border:1px solid #2A231E; border-radius:10px;
+                                padding:0.7rem 1rem; font-family:Inter,sans-serif;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <span style="font-weight:500; color:#FAFAFA; font-size:0.82rem;">{esc(str(d.get('item_type', '')))}</span>
+                            <span style="color:{v_color}; font-size:0.68rem; font-weight:600;
+                                        padding:2px 8px; background:{v_color}15; border-radius:12px;">
+                                {v_icon} {esc(v_type.replace('_', ' ').title())}</span>
+                        </div>
+                        <div style="font-size:0.75rem; color:#9CA3AF;">
+                            {esc(str(d.get('departure_time', '')))} &#8594; {esc(str(d.get('arrival_time', '')))}
+                        </div>
+                    </div>"""
                 _html(f"""
-                <div style="font-family:Inter,sans-serif; font-weight:600; font-size:0.78rem;
+                <div style="font-family:Inter,sans-serif; font-weight:600; font-size:0.72rem;
                             color:#C9A962; margin:14px 0 8px 0; text-transform:uppercase;
                             letter-spacing:0.8px;">Delivery Schedule</div>
-                <table class="menu-table">
-                    <thead><tr><th>Items</th><th>Depart</th><th>Arrive</th><th>Vehicle</th></tr></thead>
-                    <tbody>{del_html}</tbody>
-                </table>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+                    {del_cards}
+                </div>
                 """)
 
         # ==============================================================
@@ -1059,104 +1068,100 @@ def render_results_panel(state, placeholder):
             risk_colors = {"NONE": "#22C55E", "LOW": "#22C55E", "MEDIUM": "#EAB308", "HIGH": "#DC2626", "CRITICAL": "#DC2626"}
             rl_color = risk_colors.get(risk_level, "#6B7280")
             _html(f"""
+            <hr class="section-divider" />
             <div class="results-section">
                 <div class="section-title">
                     <span class="section-num">6</span>Risk Assessment
-                    <span style="font-family:Inter,sans-serif; font-size:0.7rem; font-weight:700;
+                    <span style="font-family:Inter,sans-serif; font-size:0.68rem; font-weight:700;
                                  color:{rl_color}; margin-left:12px; padding:3px 10px;
                                  background:{rl_color}15; border:1px solid {rl_color}30;
-                                 border-radius:20px; letter-spacing:0.5px;">{risk_level}</span>
+                                 border-radius:20px; letter-spacing:0.5px;">{esc(risk_level)}</span>
                 </div>
                 <div class="section-subtitle">Issues and warnings to review before confirming</div>
             </div>
             """)
 
             if has_risks:
+                risk_cards = ""
+                sev_colors = {"critical": "#DC2626", "high": "#DC2626", "medium": "#EAB308", "low": "#22C55E"}
                 for risk in state.monitoring.risks:
                     sev = risk.severity.lower()
                     css_class = f"risk-{sev}" if sev in ("critical", "high", "medium", "low") else "risk-low"
-                    sev_colors = {"critical": "#DC2626", "high": "#DC2626", "medium": "#EAB308", "low": "#22C55E"}
                     dot_color = sev_colors.get(sev, "#6B7280")
-                    _html(f"""
+                    risk_cards += f"""
                     <div class="{css_class}">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <span style="width:8px; height:8px; border-radius:50%; background:{dot_color};
+                        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                            <span style="width:7px; height:7px; border-radius:50%; background:{dot_color};
                                         flex-shrink:0;"></span>
-                            <span class="risk-label" style="color:{dot_color};">{risk.severity}</span>
-                            <span style="font-family:Inter,sans-serif; font-size:0.75rem; color:#4B5563;
-                                        margin-left:auto;">{risk.type}</span>
+                            <span class="risk-label" style="color:{dot_color};">{esc(risk.severity)}</span>
+                            <span style="font-family:Inter,sans-serif; font-size:0.68rem; color:#4B5563;
+                                        margin-left:auto;">{esc(risk.type)}</span>
                         </div>
-                        <div class="risk-desc">{risk.description}</div>
-                        <div class="risk-action">
-                            <strong style="color:#6B7280;">Action:</strong> {risk.suggested_action}
-                        </div>
-                    </div>
-                    """)
+                        <div class="risk-desc">{esc(risk.description)}</div>
+                        <div class="risk-action">{esc(risk.suggested_action)}</div>
+                    </div>"""
+                _html(f'<div class="risk-grid">{risk_cards}</div>')
 
             if has_shortages:
-                _html("""
-                <div style="font-family:Inter,sans-serif; font-weight:600; font-size:0.78rem;
-                            color:#EAB308; margin-top:14px; margin-bottom:8px; text-transform:uppercase;
-                            letter-spacing:0.8px;">Ingredient Shortages</div>
-                """)
+                shortage_rows = ""
                 for s in state.inventory.shortages:
                     sev_color = "#DC2626" if s.severity == "HIGH" else "#EAB308" if s.severity == "MEDIUM" else "#22C55E"
                     deficit_pct = (s.deficit / s.required * 100) if s.required > 0 else 0
-                    sub_text = f'<div style="color:#C9A962; font-size:0.78rem; margin-top:4px;">Suggested substitute: <strong>{s.suggested_substitute}</strong></div>' if s.suggested_substitute else ""
-                    _html(f"""
-                    <div class="shortage-row">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-weight:500; color:#FAFAFA;">{s.ingredient}</span>
-                            <span style="color:{sev_color}; font-size:0.72rem; font-weight:700; padding:2px 10px;
-                                        background:{sev_color}15; border-radius:20px;">{s.severity}</span>
-                        </div>
-                        <div style="color:#9CA3AF; font-size:0.82rem; margin-top:6px;">
-                            Need <strong style="color:#FAFAFA;">{s.required:.1f}kg</strong>,
-                            have {s.available:.1f}kg
-                            <span style="color:{sev_color}; font-weight:600;">&mdash; short {s.deficit:.1f}kg ({deficit_pct:.0f}%)</span>
-                        </div>
-                        {sub_text}
-                    </div>
-                    """)
+                    sub_text = f' &rarr; {esc(s.suggested_substitute)}' if s.suggested_substitute else ""
+                    shortage_rows += f"""<tr>
+                        <td style="font-weight:500; color:#FAFAFA;">{esc(s.ingredient)}</td>
+                        <td style="text-align:right;">{s.required:.1f}kg</td>
+                        <td style="text-align:right;">{s.available:.1f}kg</td>
+                        <td style="text-align:right; color:{sev_color}; font-weight:600;">-{s.deficit:.1f}kg ({deficit_pct:.0f}%)</td>
+                        <td style="text-align:center;"><span style="color:{sev_color}; font-size:0.7rem; font-weight:700;
+                            padding:2px 8px; background:{sev_color}15; border-radius:12px;">{esc(s.severity)}</span>{sub_text}</td>
+                    </tr>"""
+                _html(f"""
+                <div style="font-family:Inter,sans-serif; font-weight:600; font-size:0.72rem;
+                            color:#EAB308; margin-top:12px; margin-bottom:6px; text-transform:uppercase;
+                            letter-spacing:0.8px;">Ingredient Shortages</div>
+                <table class="menu-table">
+                    <thead><tr><th>Ingredient</th><th style="text-align:right;">Need</th>
+                        <th style="text-align:right;">Have</th><th style="text-align:right;">Deficit</th>
+                        <th style="text-align:center;">Status</th></tr></thead>
+                    <tbody>{shortage_rows}</tbody>
+                </table>
+                """)
 
         # ── AI Summary ──
         if state.monitoring.summary:
+            summary_paragraphs = "<br>".join(esc(p) for p in state.monitoring.summary.split("\n") if p.strip())
             _html(f"""
             <div style="background:#1C1714; border:1px solid #2A231E; border-radius:14px;
-                        padding:1.2rem 1.5rem; margin-top:1.5rem;">
+                        padding:1rem 1.5rem; margin-top:1.2rem;">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                    <div style="width:24px; height:24px; border-radius:6px; background:rgba(201,169,98,0.12);
+                    <div style="width:22px; height:22px; border-radius:6px; background:rgba(201,169,98,0.12);
                                 display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                        <span style="font-size:0.7rem; color:#C9A962;">AI</span>
+                        <span style="font-size:0.65rem; color:#C9A962;">AI</span>
                     </div>
-                    <span style="font-family:Inter,sans-serif; font-size:0.72rem; text-transform:uppercase;
+                    <span style="font-family:Inter,sans-serif; font-size:0.68rem; text-transform:uppercase;
                                  letter-spacing:1px; color:#6B7280; font-weight:600;">Summary</span>
                 </div>
-                <div style="font-family:Inter,sans-serif; font-size:0.85rem; color:#D1D5DB; line-height:1.6;">
-                    {state.monitoring.summary}
+                <div style="font-family:Inter,sans-serif; font-size:0.82rem; color:#D1D5DB; line-height:1.5;
+                            max-height:200px; overflow-y:auto;">
+                    {summary_paragraphs}
                 </div>
             </div>
             """)
 
         # ── Action buttons ──
         _html('<div style="margin-top:1.5rem;"></div>')
-        btn_col1, btn_col2, btn_col3 = st.columns([2, 1, 1])
-        with btn_col1:
-            pdf_bytes = generate_pdf(state)
-            ev_type = (state.customer.event_type or "event").replace("_", "-")
-            filename = f"orchefai-{ev_type}-{guest_count}guests.pdf"
-            st.download_button(
-                label="Download PDF Report",
-                data=pdf_bytes,
-                file_name=filename,
-                mime="application/pdf",
-                use_container_width=True,
-                type="primary",
-            )
-        with btn_col2:
-            st.page_link("pages/1_Restaurant_Profile.py", label="Restaurant Profile", use_container_width=True)
-        with btn_col3:
-            st.page_link("pages/2_Event_History.py", label="Event History", use_container_width=True)
+        pdf_bytes = generate_pdf(state)
+        ev_type = (state.customer.event_type or "event").replace("_", "-")
+        filename = f"orchefai-{ev_type}-{guest_count}guests.pdf"
+        st.download_button(
+            label="Download PDF Report",
+            data=pdf_bytes,
+            file_name=filename,
+            mime="application/pdf",
+            use_container_width=True,
+            type="primary",
+        )
 
         # ── Regenerate with feedback ──
         _html("""

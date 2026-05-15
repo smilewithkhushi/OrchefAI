@@ -7,17 +7,18 @@ st.set_page_config(page_title="Catering Profile — OrchefAI", page_icon="🍽�
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
-.block-container { padding-top: 1rem; max-width: 960px; }
+.block-container { padding-top: 1.5rem; max-width: 1200px; }
 h1, h2, h3 { font-family: 'Playfair Display', serif !important; }
-.hero { text-align: center; padding: 0.8rem 0 1rem 0; }
-.hero h1 {
+.hero { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; }
+.hero img { height: 80px; }
+.hero .hero-text h1 {
     font-size: 2.2rem;
     background: linear-gradient(135deg, #C9A962 0%, #E8D5A3 50%, #C9A962 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 0.2rem;
+    margin: 0; line-height: 1.1;
 }
-.hero p { color: #9CA3AF; font-size: 0.92rem; font-family: 'Inter', sans-serif; margin: 0; }
+.hero .hero-text p { color: #9CA3AF; font-size: 0.82rem; font-family: 'Inter', sans-serif; margin: 0; }
 .sec-label {
     font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.75rem;
     text-transform: uppercase; letter-spacing: 1px; color: #C9A962;
@@ -37,8 +38,11 @@ h1, h2, h3 { font-family: 'Playfair Display', serif !important; }
 
 st.markdown("""
 <div class="hero">
-    <h1>Catering Profile</h1>
-    <p>Your business details help agents optimize plans for your operation</p>
+    <img src="app/static/logo.png" alt="OrchefAI" />
+    <div class="hero-text">
+        <h1>Catering Profile</h1>
+        <p>Your business details help agents optimize plans for your operation</p>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
