@@ -14,6 +14,8 @@ YELLOW = (234, 179, 8)
 
 class CateringPDF(FPDF):
     def header(self):
+        self.set_fill_color(*DARK)
+        self.rect(0, 0, 210, 297, 'F')
         self.set_font("Helvetica", "B", 22)
         self.set_text_color(*GOLD)
         self.cell(0, 12, "OrchefAI", align="C", new_x="LMARGIN", new_y="NEXT")
