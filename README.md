@@ -173,8 +173,8 @@ The system features **autonomous recovery**: when the Monitoring Agent detects a
 
 ### Prerequisites
 - Python 3.11+
-- Azure account (AI Search + Cosmos DB)
-- NVIDIA NIM API key
+- Azure account (AI Search + Cosmos DB + AI Foundry)
+- NVIDIA NIM API key (if using open source models)
 
 ### Setup
 
@@ -199,32 +199,6 @@ python setup/index_knowledge_base.py
 # Launch
 streamlit run app.py
 ```
-
----
-
-## 🎬 Demo Scenarios
-
-### 1. Standard Flow
-```
-"We need a vegetarian corporate lunch for 150 people at our Raffles Place office
-next Thursday. Budget is around 8,000 SGD, must be halal certified."
-```
-Full pipeline executes → complete catering plan in ~25 seconds.
-
-### 2. Autonomous Recovery (Key Differentiator)
-```
-"Halal dinner for 200 guests this Saturday in Delhi, budget ₹4,00,000"
-```
-- 📦 Inventory Agent detects lamb shortage (only 120 portions available)
-- 🛡️ Monitoring Agent flags **HIGH RISK**
-- 🔄 System **auto-replans** with chicken/tofu substitution
-- ✅ Revised plan delivered with updated cost breakdown — zero human intervention
-
-### 3. Voice Input
-User speaks: *"I need a birthday party menu for 50 people, vegetarian, budget around two thousand dollars"*
-- NVIDIA Riva transcribes speech → text
-- Intake Agent structures the request
-- Full pipeline executes autonomously
 
 ---
 
