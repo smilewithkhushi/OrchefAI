@@ -14,8 +14,19 @@ async def run_inventory(state: EventState) -> EventState:
         guest_count = state.customer.guest_count or 100
         event_type = state.customer.event_type or "corporate_lunch"
 
-        all_suppliers = search_suppliers("", halal_required=False)
-        supplier_context = json.dumps(all_suppliers, indent=2, default=str)
+        if state.menu.items:
+            dish_names = [i.dish_name for i in state.menu.items]
+            seen = set()
+            relevant_suppliers = []
+            for name in dish_names:
+                for s in search_suppliers(name, halal_required=halal_required):
+                    sid = s.get("supplier_id", s.get("name", ""))
+                    if sid not in seen:
+                        seen.add(sid)
+                        relevant_suppliers.append(s)
+        else:
+            relevant_suppliers = search_suppliers("", halal_required=False)
+        supplier_context = json.dumps(relevant_suppliers, indent=2, default=str)
 
         if state.menu.items:
             menu_context = json.dumps([i.model_dump() for i in state.menu.items], indent=2)

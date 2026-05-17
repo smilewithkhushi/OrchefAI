@@ -3,6 +3,7 @@ import time
 from models.event_state import EventState, CustomerData
 from config import call_agent
 from agents.prompts import INTAKE_PROMPT
+from utils.currency import validate_budget
 
 
 async def run_intake(user_input: str, state: EventState) -> EventState:
@@ -25,6 +26,10 @@ async def run_intake(user_input: str, state: EventState) -> EventState:
         data.pop("confidence", None)
         state.customer = CustomerData(**{k: v for k, v in data.items() if k in CustomerData.model_fields})
         state.customer.raw_input = user_input
+
+        corrected = validate_budget(state.customer.budget_usd, user_input, state.customer.venue)
+        if corrected is not None:
+            state.customer.budget_usd = corrected
 
         duration = int((time.time() - start) * 1000)
         summary = f"{state.customer.guest_count or '?'} guests, {state.customer.event_type or '?'}, dietary: {state.customer.dietary_requirements}, budget: ${state.customer.budget_usd or '?'}"

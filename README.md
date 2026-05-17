@@ -158,6 +158,7 @@ The system features **autonomous recovery**: when the Monitoring Agent detects a
 | Layer | Technology |
 |-------|-----------|
 | Agent Framework | **Microsoft AutoGen** (multi-agent orchestration) |
+| LLM Inference | **NVIDIA NIM** (Nemotron-4 340B, Llama 3.1 70B/8B) |
 | Knowledge Retrieval | **Azure AI Search** (semantic ranking, filtered queries) |
 | Agent State Store | **Azure Cosmos DB** (shared EventState document) |
 | Voice Input | **NVIDIA Riva ASR** (Parakeet streaming model) |
@@ -172,7 +173,8 @@ The system features **autonomous recovery**: when the Monitoring Agent detects a
 
 ### Prerequisites
 - Python 3.11+
-- Azure account (AI Search + AI Foundry + Cosmos DB)
+- Azure account (AI Search + Cosmos DB + AI Foundry)
+- NVIDIA NIM API key (if using open source models)
 
 ### Setup
 

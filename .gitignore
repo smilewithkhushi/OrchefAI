@@ -1,5 +1,8 @@
 
+# Secrets & environment
 .env
+.env.*
+!.env.example
 
 /plan
 
@@ -21,6 +24,16 @@ build/
 venv/
 .venv/
 env/
+
+# Database
+*.db
+data/audio/
+*.sqlite
+*.sqlite3
+
+# Generated files
+*.pdf
+*.log
 
 # OS files
 .DS_Store

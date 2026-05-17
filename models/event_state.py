@@ -10,12 +10,24 @@ class CustomerData(BaseModel):
     event_type: Optional[str] = None
     event_date: Optional[str] = None
     event_time: Optional[str] = None
+    event_end_time: Optional[str] = None
     guest_count: Optional[int] = None
     venue: Optional[str] = None
     dietary_requirements: List[str] = []
     budget_usd: Optional[float] = None
+    budget_min_usd: Optional[float] = None
+    budget_max_usd: Optional[float] = None
+    cuisine_preferences: List[str] = []
+    service_style: Optional[str] = None
+    meal_courses: List[str] = []
+    beverage_options: List[str] = []
+    alcohol_service: bool = False
+    menu_variety: Optional[str] = None  # "minimal", "moderate", "extensive"
+    indoor_outdoor: Optional[str] = None
+    venue_kitchen_available: bool = True
     special_requests: Optional[str] = None
     raw_input: Optional[str] = None
+    input_mode: Optional[str] = None
 
 
 class MenuItem(BaseModel):
@@ -92,6 +104,25 @@ class PricingData(BaseModel):
     notes: str = ""
 
 
+class LogisticsTask(BaseModel):
+    task: str
+    assigned_to: str
+    start_time: str
+    end_time: str
+    duration_hours: float
+    dependencies: List[str] = []
+    notes: str = ""
+
+
+class LogisticsData(BaseModel):
+    planned_at: Optional[str] = None
+    preparation_timeline: List[LogisticsTask] = []
+    delivery_schedule: List[Dict[str, Any]] = []
+    resource_allocation: Dict[str, Any] = {}
+    total_prep_hours: float = 0.0
+    notes: str = ""
+
+
 class Risk(BaseModel):
     risk_id: str
     severity: str
@@ -132,6 +163,7 @@ class EventState(BaseModel):
     menu: MenuData = MenuData()
     inventory: InventoryData = InventoryData()
     pricing: PricingData = PricingData()
+    logistics: LogisticsData = LogisticsData()
     monitoring: MonitoringData = MonitoringData()
     agent_log: List[AgentLogEntry] = []
 
